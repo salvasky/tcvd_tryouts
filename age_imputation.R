@@ -1,0 +1,265 @@
+---
+title: "tryouts"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Age imputation
+
+```{r}
+train <- read.csv("~/Desktop/DS/22:1/Life Cycle/PRA2/train.csv")
+```
+
+<br>
+
+Veiem que hi ha 177 valors buits a la variable 'Age':
+
+```{r}
+colSums(is.na(train))
+```
+
+<br>
+
+<br>
+
+Transformem a factor diverses de les variables:
+
+```{r}
+train$Pclass <- as.factor(train$Pclass)
+train$Survived <- as.factor(train$Survived)
+train$Sex <- as.factor(train$Sex)
+train$Embarked <- as.factor(train$Embarked)
+
+```
+
+<br>
+
+<br>
+
+La idea que plantegem per tal d'imputar els 177 valors absents de la variable edat és crear diversos subgrups per tal de fer una aproximació més precisa a la possible edat de les persones. Es tractarà de deduir quina edat tenen les persones que pertanyen a grups que es defineixen per altres variables. En primer lloc, utilitzem el fet que el títol (Mr., Miss., etc.) té una relació amb l'edat. L'exemple més clar és el títol 'Master', que s'utilitza només per a nens. Els altres grups no són tan reduïts, però sí que detectem una mitjana d'edat diferent en el grup Mr. que en el grup Mrs.
+
+El primer pas d'aquest procés consisteix a extraure aquests títols de la variable 'Name', creant una nova variable 'title':
+
+```{r}
+
+train$ext_1 <- sub(".*, ", "", train$Name)
+train$title <- sub(" .*", "", train$ext_1)
+levels(as.factor(train$title))
+```
+
+<br>
+
+Seguidament, separem el conjunt de dades amb valors buits:
+
+```{r}
+no_na_train <- train[!is.na(train$Age),]
+na_train <- train[is.na(train$Age),]
+```
+
+<br>
+
+La segona variable que utilitzarem per aproximar l'edat és la variable 'Pclass'. Ens adonem que, per exemple, els homes de primera classe són de mitjana més grans que els homes de tercera. Combinant classe i títol, podem imputar els registres amb valors més precisos (en lloc d'atorgar a tothom una mitjana de 33 anys, que no seria adient en molts casos). Separem doncs el dataset (sense valors nuls) en tres classes:
+
+```{r}
+first_cl <- no_na_train[no_na_train$Pclass == 1,]
+second_cl <- no_na_train[no_na_train$Pclass == 2,]
+third_cl <- no_na_train[no_na_train$Pclass == 3,]
+
+```
+
+\
+<br>
+
+Abans de procedir, comprovem també si la variable 'Fare' pot tenir relació amb l'edat. Imaginàvem que potser l'edat es veu reflectida en el preu dels bitllets. Veiem però que no es dóna aquesta correlació:
+
+```{r}
+cor(second_cl$Age, second_cl$Fare)
+```
+
+<br>
+
+Mostrem quins són els títols dels registres amb valors nuls, i veiem que no caldrà utilitzar tots els títols. Només manquen valors en els títols següents:
+
+```{r}
+levels(as.factor(na_train$title))
+```
+
+<br>
+
+Iniciem doncs el procés d'imputació prenent com a referència classe i títol. Comencem pels registres amb títol Dr. Primer mostrem en quina combinació del títol Dr. i classe hi ha valors buits:
+
+```{r}
+train$Age[train$title == "Dr." & train$Pclass == 1]
+train$Age[train$title == "Dr." & train$Pclass == 2]
+train$Age[train$title == "Dr." & train$Pclass == 3]
+
+
+```
+
+Veiem que en aquest cas, només hi ha un valor buit en passatgers amb títol Dr. de primera classe (a segona no hi ha Dr. amb valors buits, i a tercera no hi ha cap passatger amb títol Dr.)
+
+\
+<br>
+
+Imputem doncs el valor NA per títol Dr. i primera classe en el dataset original utilitzant la mitjana d'edat de passatgers Dr. de primera classe provinent del dataset que no conté valors nuls:
+
+```{r}
+imp_dr_1 <- mean(first_cl$Age[first_cl$title == "Dr."])
+imp_dr_1
+
+train$Age[is.na(train$Age) & train$title == "Dr." & train$Pclass == 1] <- imp_dr_1
+train$Age[train$title == "Dr." & train$Pclass == 1]
+
+```
+
+<br>
+
+A partir d'aquí seguim amb cadascun dels títols, i en cada cas imputem només en el grup classe on hi ha valors buits:
+
+```{r}
+
+train$Age[train$title == "Master." & train$Pclass == 1]
+train$Age[train$title == "Master." & train$Pclass == 2]
+train$Age[train$title == "Master." & train$Pclass == 3]
+```
+
+\
+<br>
+
+```{r}
+
+imp_master_3 <- mean(third_cl$Age[third_cl$title == "Master."])
+
+```
+
+\
+<br>
+
+```{r}
+train$Age[is.na(train$Age) & train$title == "Master." & train$Pclass == 3] <- imp_master_3
+train$Age[train$title == "Master." & train$Pclass == 3]
+```
+
+\
+<br>
+
+```{r}
+train$Age[train$title == "Miss." & train$Pclass == 1]
+train$Age[train$title == "Miss." & train$Pclass == 2]
+train$Age[train$title == "Miss." & train$Pclass == 3]
+```
+
+\
+<br>
+
+```{r}
+imp_miss_1 <- mean(first_cl$Age[first_cl$title == "Miss."])
+imp_miss_2 <- mean(second_cl$Age[second_cl$title == "Miss."])
+imp_miss_3 <- mean(third_cl$Age[third_cl$title == "Miss."])
+imp_miss_1
+imp_miss_2
+imp_miss_3
+
+```
+
+\
+<br>
+
+```{r}
+
+train$Age[is.na(train$Age) & train$title == "Miss." & train$Pclass == 1] <- imp_miss_1
+train$Age[train$title == "Miss." & train$Pclass == 1]
+
+
+train$Age[is.na(train$Age) & train$title == "Miss." & train$Pclass == 2] <- imp_miss_2
+train$Age[train$title == "Miss." & train$Pclass == 2]
+
+train$Age[is.na(train$Age) & train$title == "Miss." & train$Pclass == 3] <- imp_miss_3
+train$Age[train$title == "Miss." & train$Pclass == 3]
+```
+
+\
+<br>
+
+```{r}
+train$Age[train$title == "Mrs." & train$Pclass == 1]
+train$Age[train$title == "Mrs." & train$Pclass == 2]
+train$Age[train$title == "Mrs." & train$Pclass == 3]
+```
+
+\
+<br>\
+
+```{r}
+imp_mrs_1 <- mean(first_cl$Age[first_cl$title == "Mrs."])
+imp_mrs_3 <- mean(third_cl$Age[third_cl$title == "Mrs."])
+imp_mrs_1
+imp_mrs_3
+```
+
+<br>
+
+```{r}
+train$Age[is.na(train$Age) & train$title == "Mrs." & train$Pclass == 1] <- imp_mrs_1
+train$Age[train$title == "Mrs." & train$Pclass == 1]
+
+
+train$Age[is.na(train$Age) & train$title == "Mrs." & train$Pclass == 3] <- imp_mrs_3
+train$Age[train$title == "Mrs." & train$Pclass == 3]
+```
+
+<br>
+
+```{r}
+train$Age[train$title == "Mr." & train$Pclass == 1]
+train$Age[train$title == "Mr." & train$Pclass == 2]
+train$Age[train$title == "Mr." & train$Pclass == 3]
+```
+
+<br>
+
+```{r}
+imp_mr_1 <- mean(first_cl$Age[first_cl$title == "Mr."])
+imp_mr_2 <- mean(second_cl$Age[second_cl$title == "Mr."])
+imp_mr_3 <- mean(third_cl$Age[third_cl$title == "Mr."])
+imp_mr_1
+imp_mr_2
+imp_mr_3
+```
+
+\
+<br>
+
+```{r}
+train$Age[is.na(train$Age) & train$title == "Mr." & train$Pclass == 1] <- imp_mr_1
+train$Age[train$title == "Mr." & train$Pclass == 1]
+
+train$Age[is.na(train$Age) & train$title == "Mr." & train$Pclass == 2] <- imp_mr_2
+train$Age[train$title == "Mr." & train$Pclass == 2]
+
+train$Age[is.na(train$Age) & train$title == "Mr." & train$Pclass == 3] <- imp_mr_3
+train$Age[train$title == "Mr." & train$Pclass == 3]
+```
+
+\
+<br>
+
+```{r}
+summary(train$Age)
+```
+
+\
+<br>
+
+```{r}
+write.csv(train, "~/Desktop/DS/22:1/Life Cycle/PRA2/titanic.csv", row.names = FALSE)
+```
+
+\
+<br>\
+<br>\
+<br>\
+<br>\
