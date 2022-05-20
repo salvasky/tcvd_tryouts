@@ -254,6 +254,8 @@ summary(train$Age)
 \
 <br>
 
+Exportem el resultat a un nou fitxer csv:
+
 ```{r}
 write.csv(train, "~/Desktop/DS/22:1/Life Cycle/PRA2/titanic.csv", row.names = FALSE)
 ```
