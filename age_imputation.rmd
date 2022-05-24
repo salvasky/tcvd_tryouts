@@ -254,6 +254,59 @@ summary(train$Age)
 \
 <br>
 
+<br>
+
+Detectem alguns valors buits a la variable 'Embarked':
+
+```{r}
+levels(train$Embarked)
+```
+
+<br>
+
+```{r}
+summary(train$Embarked)
+```
+
+<br>
+
+Mostrem els dos registres dels quals no disposem port d'embarcament:
+
+```{r}
+train[train$Embarked == "",]
+```
+
+<br>
+
+No tenim manera d'imputar aquests valors, i per tant hi assignem NA:
+
+```{r}
+train[train$Embarked == "",] <- NA
+summary(train$Embarked)
+```
+
+<br>
+
+## Detecció d'outliers
+
+## 
+
+<br>
+
+```{r}
+boxplot(train$Fare)
+```
+
+<br>
+
+Veiem que hi ha tres passatgers que paguen un preu molts més alt que la resta. Si examinem la resta dels valors, creiem que no es tracta de valors erronis:
+
+```{r}
+train[train$Fare > 400,]
+```
+
+<br>
+
 Exportem el resultat a un nou fitxer csv:
 
 ```{r}
