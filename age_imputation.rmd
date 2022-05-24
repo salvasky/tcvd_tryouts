@@ -281,7 +281,7 @@ train[train$Embarked == "",]
 No tenim manera d'imputar aquests valors, i per tant hi assignem NA:
 
 ```{r}
-train[train$Embarked == "",] <- NA
+train$Embarked[train$Embarked == "",] <- NA
 summary(train$Embarked)
 ```
 
