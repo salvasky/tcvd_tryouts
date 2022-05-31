@@ -9,8 +9,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Age imputation
 
+Importem el dataset, disponible a https://www.kaggle.com/c/titanic
+
 ```{r}
-train <- read.csv("~/Desktop/DS/22:1/Life Cycle/PRA2/train.csv")
+train <- read.csv("~/Desktop/train.csv")
 ```
 
 <br>
@@ -101,6 +103,15 @@ train$Age[train$title == "Dr." & train$Pclass == 3]
 
 Veiem que en aquest cas, només hi ha un valor buit en passatgers amb títol Dr. de primera classe (a segona no hi ha Dr. amb valors buits, i a tercera no hi ha cap passatger amb títol Dr.)
 
+<br>
+
+Comprovem que no hi hagi outliers en la distribució de passatgers amb títol Dr. a 1a classe:
+
+```{r}
+boxplot(first_cl$Age[first_cl$title == "Dr."])
+boxplot.stats(first_cl$Age[first_cl$title == "Dr."])$out
+```
+
 \
 <br>
 
@@ -130,6 +141,12 @@ train$Age[train$title == "Master." & train$Pclass == 3]
 <br>
 
 ```{r}
+boxplot.stats(third_cl$Age[third_cl$title == "Master."])$out
+```
+
+<br>
+
+```{r}
 
 imp_master_3 <- mean(third_cl$Age[third_cl$title == "Master."])
 
@@ -153,6 +170,31 @@ train$Age[train$title == "Miss." & train$Pclass == 3]
 ```
 
 \
+<br>
+
+```{r}
+boxplot.stats(first_cl$Age[first_cl$title == "Miss."])$out
+boxplot.stats(second_cl$Age[second_cl$title == "Miss."])$out
+boxplot.stats(third_cl$Age[third_cl$title == "Miss."])$out
+```
+
+```{r}
+boxplot(first_cl$Age[first_cl$title == "Miss."])
+boxplot(third_cl$Age[third_cl$title == "Miss."])
+```
+
+```{r}
+mean(first_cl$Age[first_cl$title == "Miss."])
+median(first_cl$Age[first_cl$title == "Miss."])
+```
+
+```{r}
+mean(third_cl$Age[third_cl$title == "Miss."])
+median(third_cl$Age[third_cl$title == "Miss."])
+```
+
+En aquest cas, veiem que els outliers detectats no donen suport a un canvi d'estratègia. En el grup de primera classe, mitjana i mediana són equivalents malgrat l'outlier, i en tercera classe, tot i que l'outlier afecta la mitjana, utilitzar la mediana, que dóna un valor més alt, no sembla la opció correcta. Seguim doncs utilitzant la mitjana per imputar valors nuls en ambdós grups.
+
 <br>
 
 ```{r}
@@ -191,11 +233,23 @@ train$Age[train$title == "Mrs." & train$Pclass == 3]
 ```
 
 \
+<br>
+
+```{r}
+boxplot.stats(first_cl$Age[first_cl$title == "Mrs."])$out
+boxplot.stats(third_cl$Age[third_cl$title == "Mrs."])$out
+
+mean(third_cl$Age[third_cl$title == "Mrs."])
+median(third_cl$Age[third_cl$title == "Mrs."])
+```
+
+En aquest cas sí que veiem que un únic valor (63) afecta la mitjana d'edat de les passatgeres 'Mrs.' de tercera classe. En aquest cas concret doncs, optarem per utilitzar la mediana per fer la imputació.
+
 <br>\
 
 ```{r}
 imp_mrs_1 <- mean(first_cl$Age[first_cl$title == "Mrs."])
-imp_mrs_3 <- mean(third_cl$Age[third_cl$title == "Mrs."])
+imp_mrs_3 <- median(third_cl$Age[third_cl$title == "Mrs."])
 imp_mrs_1
 imp_mrs_3
 ```
@@ -222,9 +276,27 @@ train$Age[train$title == "Mr." & train$Pclass == 3]
 <br>
 
 ```{r}
+boxplot.stats(first_cl$Age[first_cl$title == "Mr."])$out
+boxplot.stats(second_cl$Age[second_cl$title == "Mr."])$out
+boxplot.stats(third_cl$Age[third_cl$title == "Mr."])$out
+```
+
+```{r}
+mean(second_cl$Age[second_cl$title == "Mr."])
+median(second_cl$Age[second_cl$title == "Mr."])
+
+mean(third_cl$Age[third_cl$title == "Mr."])
+median(third_cl$Age[third_cl$title == "Mr."])
+```
+
+En els grups de segona i tercera també optarem per utilitzar la mediana en lloc de la mitjana.
+
+<br>
+
+```{r}
 imp_mr_1 <- mean(first_cl$Age[first_cl$title == "Mr."])
-imp_mr_2 <- mean(second_cl$Age[second_cl$title == "Mr."])
-imp_mr_3 <- mean(third_cl$Age[third_cl$title == "Mr."])
+imp_mr_2 <- median(second_cl$Age[second_cl$title == "Mr."])
+imp_mr_3 <- median(third_cl$Age[third_cl$title == "Mr."])
 imp_mr_1
 imp_mr_2
 imp_mr_3
@@ -250,9 +322,6 @@ train$Age[train$title == "Mr." & train$Pclass == 3]
 ```{r}
 summary(train$Age)
 ```
-
-\
-<br>
 
 <br>
 
@@ -281,7 +350,7 @@ train[train$Embarked == "",]
 No tenim manera d'imputar aquests valors, i per tant hi assignem NA:
 
 ```{r}
-train$Embarked[train$Embarked == "",] <- NA
+train$Embarked[train$Embarked == ""] <- NA
 summary(train$Embarked)
 ```
 
@@ -307,10 +376,13 @@ train[train$Fare > 400,]
 
 <br>
 
-Exportem el resultat a un nou fitxer csv:
+<br>
+
+Donem un nou nom al dataset amb totes les correccions fetes, i l'exportem a un fitxer csv:
 
 ```{r}
-write.csv(train, "~/Desktop/DS/22:1/Life Cycle/PRA2/titanic.csv", row.names = FALSE)
+titanic1 <- train
+write.csv(titanic1, "~/Desktop/titanic.csv", row.names = FALSE)
 ```
 
 \
