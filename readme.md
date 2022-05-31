@@ -7,18 +7,29 @@ Hem utilitzat el dataset "Titanic: Machine Learning from Disaster", disponible a
 
 Aquest famós joc de dades conté informació sobre els passatgers que viatjaven al Titanic quan es va enfonsar, el 15 d'Abril del 1912. Les variables incloses en el joc de dades són:
 
-**Variable	Definició**
-survival 	Va sobreviure 	0 = No, 1 = Yes
-pclass 	Classe de bitllet 	1 = 1st, 2 = 2nd, 3 = 3rd
-sex 	Gènere 	
-Age 	Edat, en anys 	
-sibsp 	# de german(e)s / marit/muller viatjant al Titanic 	
-parch 	# of pares / fills viatjant al Titanic 	
-ticket 	Número de bitllet 	
-fare 	Preu del bitllet 	
-cabin 	Número de cabina	
-embarked 	Port d'embarcament 	C = Cherbourg, Q = Queenstown, S = Southampton
-
++--------------+---------------------------------+------------------------------------------------+
+| **Variable** | **Definition**                  | **Key**                                        |
++==============+=================================+================================================+
+| survival     | Ha sobreviscut                  | 0 = No, 1 = Sí                                 |
++--------------+---------------------------------+------------------------------------------------+
+| pclass       | Classe                          | 1 = 1a, 2 = 2a, 3 = 3a                         |
++--------------+---------------------------------+------------------------------------------------+
+| sex          | Gènere                          |                                                |
++--------------+---------------------------------+------------------------------------------------+
+| Age          | Edat en anys                    |                                                |
++--------------+---------------------------------+------------------------------------------------+
+| sibsp        | \# de germans / cònjuges a bord |                                                |
++--------------+---------------------------------+------------------------------------------------+
+| parch        | \# de pares / fills a bord      |                                                |
++--------------+---------------------------------+------------------------------------------------+
+| ticket       | Número de bitllet               |                                                |
++--------------+---------------------------------+------------------------------------------------+
+| fare         | Preu del bitllet                |                                                |
++--------------+---------------------------------+------------------------------------------------+
+| cabin        | Número de cabina                |                                                |
++--------------+---------------------------------+------------------------------------------------+
+| embarked     | Port d'embarcament              | C = Cherbourg, Q = Queenstown, S = Southampton |
++--------------+---------------------------------+------------------------------------------------+
 
 A la pàgina de Kaggle, com que el dataset es presenta com a material de base per a un exercici de machine learning, es divideix el datatset en un grup 'train' i un grup 'test'. La idea és utilitzar el grup 'train' per elaborar un model que pugui predir la supervivència dels passatgers del grup 'test'.
 
