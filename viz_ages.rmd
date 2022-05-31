@@ -42,7 +42,8 @@ barplot(miss, xlab = 'group', ylab = 'Mean Age', names.arg = c('Miss./1st Class'
 ```{r}
 mrs1 <- mean(no_na_train$Age[no_na_train$title == "Mrs." & no_na_train$Pclass == 1])
 mrs2 <- mean(no_na_train$Age[no_na_train$title == "Mrs." & no_na_train$Pclass == 2])
-mrs3 <- mean(no_na_train$Age[no_na_train$title == "Mrs." & no_na_train$Pclass == 3])
+# En el grup de tercera classe, la presència d'outliers ens fa optar per utilitzar la mediana
+mrs3 <- median(no_na_train$Age[no_na_train$title == "Mrs." & no_na_train$Pclass == 3])
 
 mrs <- c(mrs1, mrs2, mrs3)
 barplot(mrs, xlab = 'group', ylab = 'Mean Age', names.arg = c('Mrs./1st Class', 'Mrs./2nd Class', 'Mrs./3rd Class'), col = 'darkblue')
@@ -52,8 +53,9 @@ barplot(mrs, xlab = 'group', ylab = 'Mean Age', names.arg = c('Mrs./1st Class', 
 
 ```{r}
 mr1 <- mean(no_na_train$Age[no_na_train$title == "Mr." & no_na_train$Pclass == 1])
-mr2 <- mean(no_na_train$Age[no_na_train$title == "Mr." & no_na_train$Pclass == 2])
-mr3 <- mean(no_na_train$Age[no_na_train$title == "Mr." & no_na_train$Pclass == 3])
+# Com que els outliers influeixen sobre la mitjana, utilitzem la mediana pels grups de segona i tercera classe
+mr2 <- median(no_na_train$Age[no_na_train$title == "Mr." & no_na_train$Pclass == 2])
+mr3 <- median(no_na_train$Age[no_na_train$title == "Mr." & no_na_train$Pclass == 3])
 
 mr <- c(mr1, mr2, mr3)
 barplot(mr, xlab = 'group', ylab = 'Mean Age', names.arg = c('Mr./1st Class', 'Mr./2nd Class', 'Mr./3rd Class'), col = 'darkblue')
