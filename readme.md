@@ -1,5 +1,32 @@
 Try outs for PRA2
 
+**Descripció del dataset. Perquè és important i quina pregunta/problema pretén
+respondre?**
+
+Hem utilitzat el dataset "Titanic: Machine Learning from Disaster", disponible a https://www.kaggle.com/c/titanic
+
+Aquest famós joc de dades conté informació sobre els passatgers que viatjaven al Titanic quan es va enfonsar, el 15 d'Abril del 1912. Les variables incloses en el joc de dades són:
+
+**Variable	Definició**
+survival 	Va sobreviure 	0 = No, 1 = Yes
+pclass 	Classe de bitllet 	1 = 1st, 2 = 2nd, 3 = 3rd
+sex 	Gènere 	
+Age 	Edat, en anys 	
+sibsp 	# de german(e)s / marit/muller viatjant al Titanic 	
+parch 	# of pares / fills viatjant al Titanic 	
+ticket 	Número de bitllet 	
+fare 	Preu del bitllet 	
+cabin 	Número de cabina	
+embarked 	Port d'embarcament 	C = Cherbourg, Q = Queenstown, S = Southampton
+
+
+A la pàgina de Kaggle, com que el dataset es presenta com a material de base per a un exercici de machine learning, es divideix el datatset en un grup 'train' i un grup 'test'. La idea és utilitzar el grup 'train' per elaborar un model que pugui predir la supervivència dels passatgers del grup 'test'.
+
+A nosaltres, en canvi, ens interessa aquest dataset per fer un estudi d'interès sociològic/històric, en el qual no ens centrem en l'accident del Titanic ni en els índex de supervivència, sinó que aprofitem la informació del dataset per aprofundir sobre factors demogràfics i econòmics que ens ajudin a construir una imatge del moviment migratori envers els EUA a principis del segle XX. En aquest sentit doncs, (utilitzarem el joc de dades complet, ajuntant els grups 'train' i 'test', i descartant la variable 'survival')(?), i plantejarem preguntes com: viatjar era més car pels homes que per les dones? Els preus dels bitllets es definien tenint en compte l'edat del passatger? Viatjaven més nens a tercera classe que a primera? Viatjaven més homes joves a tercera classe?   
+
+
+
+
 Els fitxers continguts en aquest repositori són:  
 
 * age_imputation.rmd --> Conté els scripts d'imputació dels valors nuls (missing) de la variable Age així com de la variable Embarked. També conté una primera exploració de valors extrems (outliers).  
