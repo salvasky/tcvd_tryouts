@@ -9,18 +9,28 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Age imputation
 
-Importem el dataset, disponible a https://www.kaggle.com/c/titanic
+Importem el dataset, disponible a <https://www.kaggle.com/c/titanic>
 
 ```{r}
 train <- read.csv("~/Desktop/train.csv")
+test <- read.csv("~/Desktop/test.csv")
 ```
 
 <br>
 
-Veiem que hi ha 177 valors buits a la variable 'Age':
+```{r}
+train2 <- train[,c(3:6, 10, 12)]
+test2 <- test[,c(2:5, 9, 11)] 
+
+titan <- rbind(train2, test2)
+```
+
+<br>
+
+Veiem que hi ha 263 valors buits a la variable 'Age':
 
 ```{r}
-colSums(is.na(train))
+colSums(is.na(titan))
 ```
 
 <br>
@@ -30,10 +40,9 @@ colSums(is.na(train))
 Transformem a factor diverses de les variables:
 
 ```{r}
-train$Pclass <- as.factor(train$Pclass)
-train$Survived <- as.factor(train$Survived)
-train$Sex <- as.factor(train$Sex)
-train$Embarked <- as.factor(train$Embarked)
+titan$Pclass <- as.factor(titan$Pclass)
+titan$Sex <- as.factor(titan$Sex)
+titan$Embarked <- as.factor(titan$Embarked)
 
 ```
 
@@ -41,15 +50,15 @@ train$Embarked <- as.factor(train$Embarked)
 
 <br>
 
-La idea que plantegem per tal d'imputar els 177 valors absents de la variable edat és crear diversos subgrups per tal de fer una aproximació més precisa a la possible edat de les persones. Es tractarà de deduir quina edat tenen les persones que pertanyen a grups que es defineixen per altres variables. En primer lloc, utilitzem el fet que el títol (Mr., Miss., etc.) té una relació amb l'edat. L'exemple més clar és el títol 'Master', que s'utilitza només per a nens. Els altres grups no són tan reduïts, però sí que detectem una mitjana d'edat diferent en el grup Mr. que en el grup Mrs.
+La idea que plantegem per tal d'imputar els 263 valors absents de la variable edat és crear diversos subgrups per tal de fer una aproximació més precisa a la possible edat de les persones. Es tractarà de deduir quina edat tenen les persones que pertanyen a grups que es defineixen per altres variables. En primer lloc, utilitzem el fet que el títol (Mr., Miss., etc.) té una relació amb l'edat. L'exemple més clar és el títol 'Master', que s'utilitza només per a nens. Els altres grups no són tan reduïts, però sí que detectem una mitjana d'edat diferent en el grup Mr. que en el grup Mrs.
 
 El primer pas d'aquest procés consisteix a extraure aquests títols de la variable 'Name', creant una nova variable 'title':
 
 ```{r}
 
-train$ext_1 <- sub(".*, ", "", train$Name)
-train$title <- sub(" .*", "", train$ext_1)
-levels(as.factor(train$title))
+titan$ext_1 <- sub(".*, ", "", titan$Name)
+titan$title <- sub(" .*", "", titan$ext_1)
+levels(as.factor(titan$title))
 ```
 
 <br>
@@ -57,8 +66,8 @@ levels(as.factor(train$title))
 Seguidament, separem el conjunt de dades amb valors buits:
 
 ```{r}
-no_na_train <- train[!is.na(train$Age),]
-na_train <- train[is.na(train$Age),]
+no_na_titan <- titan[!is.na(titan$Age),]
+na_titan <- titan[is.na(titan$Age),]
 ```
 
 <br>
@@ -66,9 +75,9 @@ na_train <- train[is.na(train$Age),]
 La segona variable que utilitzarem per aproximar l'edat és la variable 'Pclass'. Ens adonem que, per exemple, els homes de primera classe són de mitjana més grans que els homes de tercera. Combinant classe i títol, podem imputar els registres amb valors més precisos (en lloc d'atorgar a tothom una mitjana de 33 anys, que no seria adient en molts casos). Separem doncs el dataset (sense valors nuls) en tres classes:
 
 ```{r}
-first_cl <- no_na_train[no_na_train$Pclass == 1,]
-second_cl <- no_na_train[no_na_train$Pclass == 2,]
-third_cl <- no_na_train[no_na_train$Pclass == 3,]
+first_cl <- no_na_titan[no_na_titan$Pclass == 1,]
+second_cl <- no_na_titan[no_na_titan$Pclass == 2,]
+third_cl <- no_na_titan[no_na_titan$Pclass == 3,]
 
 ```
 
@@ -86,7 +95,7 @@ cor(second_cl$Age, second_cl$Fare)
 Mostrem quins són els títols dels registres amb valors nuls, i veiem que no caldrà utilitzar tots els títols. Només manquen valors en els títols següents:
 
 ```{r}
-levels(as.factor(na_train$title))
+levels(as.factor(na_titan$title))
 ```
 
 <br>
@@ -94,9 +103,9 @@ levels(as.factor(na_train$title))
 Iniciem doncs el procés d'imputació prenent com a referència classe i títol. Comencem pels registres amb títol Dr. Primer mostrem en quina combinació del títol Dr. i classe hi ha valors buits:
 
 ```{r}
-train$Age[train$title == "Dr." & train$Pclass == 1]
-train$Age[train$title == "Dr." & train$Pclass == 2]
-train$Age[train$title == "Dr." & train$Pclass == 3]
+titan$Age[titan$title == "Dr." & titan$Pclass == 1]
+titan$Age[titan$title == "Dr." & titan$Pclass == 2]
+titan$Age[titan$title == "Dr." & titan$Pclass == 3]
 
 
 ```
@@ -115,14 +124,14 @@ boxplot.stats(first_cl$Age[first_cl$title == "Dr."])$out
 \
 <br>
 
-Imputem doncs el valor NA per títol Dr. i primera classe en el dataset original utilitzant la mitjana d'edat de passatgers Dr. de primera classe provinent del dataset que no conté valors nuls:
+Veiem que, efectivament, hi ha un valor extrem baix que té un efecte sobre la mitjana. Optem per utilitzar la mediana en lloc de la mitjana per trobar una edat més central en la distribució del grup. Imputem doncs el valor NA per títol Dr. i primera classe en el dataset original utilitzant la mediana d'edat de passatgers Dr. de primera classe provinent del dataset que no conté valors nuls:
 
 ```{r}
-imp_dr_1 <- mean(first_cl$Age[first_cl$title == "Dr."])
+imp_dr_1 <- median(first_cl$Age[first_cl$title == "Dr."])
 imp_dr_1
 
-train$Age[is.na(train$Age) & train$title == "Dr." & train$Pclass == 1] <- imp_dr_1
-train$Age[train$title == "Dr." & train$Pclass == 1]
+titan$Age[is.na(titan$Age) & titan$title == "Dr." & titan$Pclass == 1] <- imp_dr_1
+titan$Age[titan$title == "Dr." & titan$Pclass == 1]
 
 ```
 
@@ -132,9 +141,9 @@ A partir d'aquí seguim amb cadascun dels títols, i en cada cas imputem només 
 
 ```{r}
 
-train$Age[train$title == "Master." & train$Pclass == 1]
-train$Age[train$title == "Master." & train$Pclass == 2]
-train$Age[train$title == "Master." & train$Pclass == 3]
+titan$Age[titan$title == "Master." & titan$Pclass == 1]
+titan$Age[titan$title == "Master." & titan$Pclass == 2]
+titan$Age[titan$title == "Master." & titan$Pclass == 3]
 ```
 
 \
@@ -156,17 +165,17 @@ imp_master_3 <- mean(third_cl$Age[third_cl$title == "Master."])
 <br>
 
 ```{r}
-train$Age[is.na(train$Age) & train$title == "Master." & train$Pclass == 3] <- imp_master_3
-train$Age[train$title == "Master." & train$Pclass == 3]
+titan$Age[is.na(titan$Age) & titan$title == "Master." & titan$Pclass == 3] <- imp_master_3
+titan$Age[titan$title == "Master." & titan$Pclass == 3]
 ```
 
 \
 <br>
 
 ```{r}
-train$Age[train$title == "Miss." & train$Pclass == 1]
-train$Age[train$title == "Miss." & train$Pclass == 2]
-train$Age[train$title == "Miss." & train$Pclass == 3]
+titan$Age[titan$title == "Miss." & titan$Pclass == 1]
+titan$Age[titan$title == "Miss." & titan$Pclass == 2]
+titan$Age[titan$title == "Miss." & titan$Pclass == 3]
 ```
 
 \
@@ -193,7 +202,7 @@ mean(third_cl$Age[third_cl$title == "Miss."])
 median(third_cl$Age[third_cl$title == "Miss."])
 ```
 
-En aquest cas, veiem que els outliers detectats no donen suport a un canvi d'estratègia. En el grup de primera classe, mitjana i mediana són equivalents malgrat l'outlier, i en tercera classe, tot i que l'outlier afecta la mitjana, utilitzar la mediana, que dóna un valor més alt, no sembla la opció correcta. Seguim doncs utilitzant la mitjana per imputar valors nuls en ambdós grups.
+En aquest cas, veiem que els outliers detectats no donen suport a un canvi d'estratègia. En els dos casos, la diferència entre mitjana i mediana és mínima. Seguim doncs utilitzant la mitjana per imputar valors nuls en ambdós grups.
 
 <br>
 
@@ -212,24 +221,24 @@ imp_miss_3
 
 ```{r}
 
-train$Age[is.na(train$Age) & train$title == "Miss." & train$Pclass == 1] <- imp_miss_1
-train$Age[train$title == "Miss." & train$Pclass == 1]
+titan$Age[is.na(titan$Age) & titan$title == "Miss." & titan$Pclass == 1] <- imp_miss_1
+titan$Age[titan$title == "Miss." & titan$Pclass == 1]
 
 
-train$Age[is.na(train$Age) & train$title == "Miss." & train$Pclass == 2] <- imp_miss_2
-train$Age[train$title == "Miss." & train$Pclass == 2]
+titan$Age[is.na(titan$Age) & titan$title == "Miss." & titan$Pclass == 2] <- imp_miss_2
+titan$Age[titan$title == "Miss." & titan$Pclass == 2]
 
-train$Age[is.na(train$Age) & train$title == "Miss." & train$Pclass == 3] <- imp_miss_3
-train$Age[train$title == "Miss." & train$Pclass == 3]
+titan$Age[is.na(titan$Age) & titan$title == "Miss." & titan$Pclass == 3] <- imp_miss_3
+titan$Age[titan$title == "Miss." & titan$Pclass == 3]
 ```
 
 \
 <br>
 
 ```{r}
-train$Age[train$title == "Mrs." & train$Pclass == 1]
-train$Age[train$title == "Mrs." & train$Pclass == 2]
-train$Age[train$title == "Mrs." & train$Pclass == 3]
+titan$Age[titan$title == "Mrs." & titan$Pclass == 1]
+titan$Age[titan$title == "Mrs." & titan$Pclass == 2]
+titan$Age[titan$title == "Mrs." & titan$Pclass == 3]
 ```
 
 \
@@ -237,6 +246,7 @@ train$Age[train$title == "Mrs." & train$Pclass == 3]
 
 ```{r}
 boxplot.stats(first_cl$Age[first_cl$title == "Mrs."])$out
+boxplot.stats(second_cl$Age[second_cl$title == "Mrs."])$out
 boxplot.stats(third_cl$Age[third_cl$title == "Mrs."])$out
 
 mean(third_cl$Age[third_cl$title == "Mrs."])
@@ -249,28 +259,32 @@ En aquest cas sí que veiem que un únic valor (63) afecta la mitjana d'edat de 
 
 ```{r}
 imp_mrs_1 <- mean(first_cl$Age[first_cl$title == "Mrs."])
+imp_mrs_2 <- mean(second_cl$Age[second_cl$title == "Mrs."])
 imp_mrs_3 <- median(third_cl$Age[third_cl$title == "Mrs."])
 imp_mrs_1
+imp_mrs_2
 imp_mrs_3
 ```
 
 <br>
 
 ```{r}
-train$Age[is.na(train$Age) & train$title == "Mrs." & train$Pclass == 1] <- imp_mrs_1
-train$Age[train$title == "Mrs." & train$Pclass == 1]
+titan$Age[is.na(titan$Age) & titan$title == "Mrs." & titan$Pclass == 1] <- imp_mrs_1
+titan$Age[titan$title == "Mrs." & titan$Pclass == 1]
 
+titan$Age[is.na(titan$Age) & titan$title == "Mrs." & titan$Pclass == 2] <- imp_mrs_2
+titan$Age[titan$title == "Mrs." & titan$Pclass == 2]
 
-train$Age[is.na(train$Age) & train$title == "Mrs." & train$Pclass == 3] <- imp_mrs_3
-train$Age[train$title == "Mrs." & train$Pclass == 3]
+titan$Age[is.na(titan$Age) & titan$title == "Mrs." & titan$Pclass == 3] <- imp_mrs_3
+titan$Age[titan$title == "Mrs." & titan$Pclass == 3]
 ```
 
 <br>
 
 ```{r}
-train$Age[train$title == "Mr." & train$Pclass == 1]
-train$Age[train$title == "Mr." & train$Pclass == 2]
-train$Age[train$title == "Mr." & train$Pclass == 3]
+titan$Age[titan$title == "Mr." & titan$Pclass == 1]
+titan$Age[titan$title == "Mr." & titan$Pclass == 2]
+titan$Age[titan$title == "Mr." & titan$Pclass == 3]
 ```
 
 <br>
@@ -306,21 +320,38 @@ imp_mr_3
 <br>
 
 ```{r}
-train$Age[is.na(train$Age) & train$title == "Mr." & train$Pclass == 1] <- imp_mr_1
-train$Age[train$title == "Mr." & train$Pclass == 1]
+titan$Age[is.na(titan$Age) & titan$title == "Mr." & titan$Pclass == 1] <- imp_mr_1
+titan$Age[titan$title == "Mr." & titan$Pclass == 1]
 
-train$Age[is.na(train$Age) & train$title == "Mr." & train$Pclass == 2] <- imp_mr_2
-train$Age[train$title == "Mr." & train$Pclass == 2]
+titan$Age[is.na(titan$Age) & titan$title == "Mr." & titan$Pclass == 2] <- imp_mr_2
+titan$Age[titan$title == "Mr." & titan$Pclass == 2]
 
-train$Age[is.na(train$Age) & train$title == "Mr." & train$Pclass == 3] <- imp_mr_3
-train$Age[train$title == "Mr." & train$Pclass == 3]
+titan$Age[is.na(titan$Age) & titan$title == "Mr." & titan$Pclass == 3] <- imp_mr_3
+titan$Age[titan$title == "Mr." & titan$Pclass == 3]
 ```
 
 \
 <br>
 
 ```{r}
-summary(train$Age)
+titan$Age[titan$title == "Ms." & titan$Pclass == 1]
+titan$Age[titan$title == "Ms." & titan$Pclass == 2]
+titan$Age[titan$title == "Ms." & titan$Pclass == 3]
+```
+
+<br>
+
+En aquest cas no tenim referència. Imputarem l'únic valor nul amb la referència de la mitjana d'edat que hem creat anteriorment pel títol 'Mrs.' de tercera classe:
+
+```{r}
+titan$Age[is.na(titan$Age) & titan$title == "Ms." & titan$Pclass == 3] <- imp_mrs_3
+titan$Age[titan$title == "Ms." & titan$Pclass == 3]
+```
+
+<br>
+
+```{r}
+summary(titan$Age)
 ```
 
 <br>
@@ -328,13 +359,13 @@ summary(train$Age)
 Detectem alguns valors buits a la variable 'Embarked':
 
 ```{r}
-levels(train$Embarked)
+levels(titan$Embarked)
 ```
 
 <br>
 
 ```{r}
-summary(train$Embarked)
+summary(titan$Embarked)
 ```
 
 <br>
@@ -342,7 +373,7 @@ summary(train$Embarked)
 Mostrem els dos registres dels quals no disposem port d'embarcament:
 
 ```{r}
-train[train$Embarked == "",]
+titan[titan$Embarked == "",]
 ```
 
 <br>
@@ -350,8 +381,34 @@ train[train$Embarked == "",]
 No tenim manera d'imputar aquests valors, i per tant hi assignem NA:
 
 ```{r}
-train$Embarked[train$Embarked == ""] <- NA
-summary(train$Embarked)
+titan$Embarked[titan$Embarked == ""] <- NA
+summary(titan$Embarked)
+```
+
+<br>
+
+Detectem també un valor buit a la variable 'Fare';
+
+```{r}
+titan[is.na(titan$Fare),]
+```
+
+<br>
+
+Trobem quina és la mitjana del preu del bitllet pels passatgers de tercera classe, i el fem servir per imputar aquest únic valor buit:
+
+```{r}
+fare_3rd <- mean(titan$Fare[!is.na(titan$Fare) & titan$Pclass == 3])
+```
+
+```{r}
+titan$Fare[is.na(titan$Fare)] <- fare_3rd
+```
+
+<br>
+
+```{r}
+summary(titan)
 ```
 
 <br>
@@ -363,15 +420,15 @@ summary(train$Embarked)
 <br>
 
 ```{r}
-boxplot(train$Fare)
+boxplot(titan$Fare)
 ```
 
 <br>
 
-Veiem que hi ha tres passatgers que paguen un preu molts més alt que la resta. Si examinem la resta dels valors, creiem que no es tracta de valors erronis:
+Veiem que hi ha 4 passatgers que paguen un preu molts més alt que la resta. Si examinem la resta dels valors, creiem que no es tracta de valors erronis:
 
 ```{r}
-train[train$Fare > 400,]
+titan[titan$Fare > 400,]
 ```
 
 <br>
@@ -381,7 +438,7 @@ train[train$Fare > 400,]
 Donem un nou nom al dataset amb totes les correccions fetes, i l'exportem a un fitxer csv:
 
 ```{r}
-titanic1 <- train
+titanic1 <- titan
 write.csv(titanic1, "~/Desktop/titanic.csv", row.names = FALSE)
 ```
 
