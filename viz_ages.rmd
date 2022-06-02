@@ -1,13 +1,12 @@
 ## Visualizations
 
-A continuació mostrem una sèrie de visualitzacions que donen suport a la nostra estratègia d'imputació de la variable 'Age'. 
-Als gràfics podem veure com les diferències en la mitjana d'edat cada vegada que agrupem passatgers per classe i títol:
+A continuació mostrem una sèrie de visualitzacions que donen suport a la nostra estratègia d'imputació de la variable 'Age'. Als gràfics podem veure com les diferències en la mitjana d'edat cada vegada que agrupem passatgers per classe i títol:
 
 <br>
 
 ```{r}
-mdr1 <- mean(no_na_train$Age[no_na_train$title == "Dr." & no_na_train$Pclass == 1])
-mdr2 <- mean(no_na_train$Age[no_na_train$title == "Dr." & no_na_train$Pclass == 2])
+mdr1 <- mean(no_na_titan$Age[no_na_titan$title == "Dr." & no_na_titan$Pclass == 1])
+mdr2 <- mean(no_na_titan$Age[no_na_titan$title == "Dr." & no_na_titan$Pclass == 2])
 ```
 
 ```{r}
@@ -18,9 +17,9 @@ barplot(dr, xlab = 'group', ylab = 'Mean Age', names.arg = c('Dr./1st Class', 'D
 <br>
 
 ```{r}
-mmas1 <- mean(no_na_train$Age[no_na_train$title == "Master." & no_na_train$Pclass == 1])
-mmas2 <- mean(no_na_train$Age[no_na_train$title == "Master." & no_na_train$Pclass == 2])
-mmas3 <- mean(no_na_train$Age[no_na_train$title == "Master." & no_na_train$Pclass == 3])
+mmas1 <- mean(no_na_titan$Age[no_na_titan$title == "Master." & no_na_titan$Pclass == 1])
+mmas2 <- mean(no_na_titan$Age[no_na_titan$title == "Master." & no_na_titan$Pclass == 2])
+mmas3 <- mean(no_na_titan$Age[no_na_titan$title == "Master." & no_na_titan$Pclass == 3])
 
 master <- c(mmas1, mmas2, mmas3)
 barplot(master, xlab = 'group', ylab = 'Mean Age', names.arg = c('Master./1st Class', 'Master./2nd Class', 'Master./3rd Class'), col = 'darkblue')
@@ -29,9 +28,9 @@ barplot(master, xlab = 'group', ylab = 'Mean Age', names.arg = c('Master./1st Cl
 <br>
 
 ```{r}
-miss1 <- mean(no_na_train$Age[no_na_train$title == "Miss." & no_na_train$Pclass == 1])
-miss2 <- mean(no_na_train$Age[no_na_train$title == "Miss." & no_na_train$Pclass == 2])
-miss3 <- mean(no_na_train$Age[no_na_train$title == "Miss." & no_na_train$Pclass == 3])
+miss1 <- mean(no_na_titan$Age[no_na_titan$title == "Miss." & no_na_titan$Pclass == 1])
+miss2 <- mean(no_na_titan$Age[no_na_titan$title == "Miss." & no_na_titan$Pclass == 2])
+miss3 <- mean(no_na_titan$Age[no_na_titan$title == "Miss." & no_na_titan$Pclass == 3])
 
 miss <- c(miss1, miss2, miss3)
 barplot(miss, xlab = 'group', ylab = 'Mean Age', names.arg = c('Miss./1st Class', 'Miss./2nd Class', 'Miss./3rd Class'), col = 'darkblue')
@@ -40,10 +39,10 @@ barplot(miss, xlab = 'group', ylab = 'Mean Age', names.arg = c('Miss./1st Class'
 <br>
 
 ```{r}
-mrs1 <- mean(no_na_train$Age[no_na_train$title == "Mrs." & no_na_train$Pclass == 1])
-mrs2 <- mean(no_na_train$Age[no_na_train$title == "Mrs." & no_na_train$Pclass == 2])
+mrs1 <- mean(no_na_titan$Age[no_na_titan$title == "Mrs." & no_na_titan$Pclass == 1])
+mrs2 <- mean(no_na_titan$Age[no_na_titan$title == "Mrs." & no_na_titan$Pclass == 2])
 # En el grup de tercera classe, la presència d'outliers ens fa optar per utilitzar la mediana
-mrs3 <- median(no_na_train$Age[no_na_train$title == "Mrs." & no_na_train$Pclass == 3])
+mrs3 <- median(no_na_titan$Age[no_na_titan$title == "Mrs." & no_na_titan$Pclass == 3])
 
 mrs <- c(mrs1, mrs2, mrs3)
 barplot(mrs, xlab = 'group', ylab = 'Mean Age', names.arg = c('Mrs./1st Class', 'Mrs./2nd Class', 'Mrs./3rd Class'), col = 'darkblue')
@@ -52,10 +51,10 @@ barplot(mrs, xlab = 'group', ylab = 'Mean Age', names.arg = c('Mrs./1st Class', 
 <br>
 
 ```{r}
-mr1 <- mean(no_na_train$Age[no_na_train$title == "Mr." & no_na_train$Pclass == 1])
+mr1 <- mean(no_na_titan$Age[no_na_titan$title == "Mr." & no_na_titan$Pclass == 1])
 # Com que els outliers influeixen sobre la mitjana, utilitzem la mediana pels grups de segona i tercera classe
-mr2 <- median(no_na_train$Age[no_na_train$title == "Mr." & no_na_train$Pclass == 2])
-mr3 <- median(no_na_train$Age[no_na_train$title == "Mr." & no_na_train$Pclass == 3])
+mr2 <- median(no_na_titan$Age[no_na_titan$title == "Mr." & no_na_titan$Pclass == 2])
+mr3 <- median(no_na_titan$Age[no_na_titan$title == "Mr." & no_na_titan$Pclass == 3])
 
 mr <- c(mr1, mr2, mr3)
 barplot(mr, xlab = 'group', ylab = 'Mean Age', names.arg = c('Mr./1st Class', 'Mr./2nd Class', 'Mr./3rd Class'), col = 'darkblue')
