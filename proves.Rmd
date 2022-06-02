@@ -30,7 +30,10 @@ Sembla que el port d'embarcament influeix sobre la classe del passatger. Veiem, 
 
 ```{r}
 table(titanic1$Pclass, titanic1$Embarked)
-chisq.test(titanic1$Pclass, titanic1$Embarked)
+cs <-chisq.test(titanic1$Pclass, titanic1$Embarked)
+cs
+#Comprovem que el valor esperat de les cel·les sigui superior a 5 en el 80% dels casos:
+cs$expected
 ```
 
 Els resultats del test de chi quadrat confirmen les nostres sospites. Rebutgem la hipòtesi nul·la i acceptem la dependència de les dues variables amb un valor p \< 0.01
