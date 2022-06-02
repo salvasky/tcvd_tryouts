@@ -447,3 +447,56 @@ write.csv(titanic1, "~/Desktop/titanic.csv", row.names = FALSE)
 <br>\
 <br>\
 <br>\
+
+## VERIFICACIÓ DE LA NORMALITAT DE LES VARIABLES  
+
+Variables que cal validar la seva normalitat:  
+* *Fare*: dues mostres segons el sexe  
+* *Age*: menors de 14 anys, dues mostres: primera i tercera classe  
+* *Age*: dues mostres, primera i tercera classe  
+
+```{r}
+# Càrrega de la llibreria dplyr per a fer servir la funció shapiro.test()
+library(dplyr)
+
+titanic_df <- read.csv("data/titanic.csv")
+
+```
+
+Validació de la normalitat de la variable *Fare* segons el sexe:
+
+```{r}
+# Comprovació visual amb QQ-plot (homes)
+qqnorm(titanic_df[titanic_df$Sex == 'male',]$Fare)
+qqline(titanic_df[titanic_df$Sex == 'male',]$Fare, col='red')
+
+# Test de Shapiro-Wilk
+shapiro.test(titanic_df[titanic_df$Sex == 'male',]$Fare)
+
+# Comprovació visual amb QQ-plot (dones)
+qqnorm(titanic_df[titanic_df$Sex == 'female',]$Fare)
+qqline(titanic_df[titanic_df$Sex == 'female',]$Fare, col='red')
+
+# Test de Shapiro-Wilk
+shapiro.test(titanic_df[titanic_df$Sex == 'female',]$Fare)
+
+```
+
+Validació de la normalitat de la variable *Age* segons la classe:
+
+```{r}
+# Comprovació visual amb QQ-plot (1a classe)
+qqnorm(titanic_df[titanic_df$Pclass == 1,]$Age)
+qqline(titanic_df[titanic_df$Pclass == 1,]$Age, col='red')
+
+# Test de Shapiro-Wilk
+shapiro.test(titanic_df[titanic_df$Pclass == 1,]$Age)
+
+# Comprovació visual amb QQ-plot (3a classe)
+qqnorm(titanic_df[titanic_df$Pclass == 3,]$Age)
+qqline(titanic_df[titanic_df$Pclass == 3,]$Age, col='red')
+
+# Test de Shapiro-Wilk
+shapiro.test(titanic_df[titanic_df$Pclass == 3,]$Age)
+
+```
