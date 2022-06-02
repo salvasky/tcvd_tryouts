@@ -1,0 +1,27 @@
+---
+title: "proves"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Proves
+
+<br>
+
+### PClass i Embarked
+
+H~0~: Les variables 'PClass' i 'Embarked' són independents
+
+H~1~: Hi ha relació entre les variables 'PClass' i 'Embarked'
+
+Sembla que el port d'embarcament influeix sobre la classe del passatger de forma estadísticament significativa. Veiem, per exemple, que al port de Queenstown hi embarquen majoritàriament passatgers de tercera classe, mentre que a Cherbourg són més nombrosos els passatgers de primera classe.
+
+```{r}
+table(titanic1$Pclass, titanic1$Embarked)
+chisq.test(titanic1$Pclass, titanic1$Embarked)
+```
+
+Els resultats del test de chi quadrat confirmen les nostres sospites. Rebutgem la hipòtesi nul·la i acceptem la dependència de les dues variables amb un valor p \< 0.01
