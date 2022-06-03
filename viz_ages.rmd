@@ -1,6 +1,20 @@
 ## Visualizations
 
-A continuació mostrem una sèrie de visualitzacions que donen suport a la nostra estratègia d'imputació de la variable 'Age'. Als gràfics podem veure com les diferències en la mitjana d'edat cada vegada que agrupem passatgers per classe i títol:
+A continuació mostrem una sèrie de visualitzacions que donen suport a la nostra estratègia d'imputació de la variable 'Age'. Als primers dos gràfics podem veure les diferències en la distribució d'edat segons classe i segons títol:
+
+```{r}
+library(ggplot2)
+ggplot(aes(y=Age, x=Pclass), data=no_na_titan) + geom_boxplot()
+```
+
+```{r}
+library(ggplot2)
+ggplot(aes(y=Age, x=title), data=no_na_titan) + geom_boxplot()
+```
+
+<br>
+
+Donades aquestes diferències, intentarem trobar valors encara més precisos en la intersecció de les variables classe i títol. En els següents gràfics mostrem que per a cada títol (d'entre els títols que contenen valors buits), la mitjana d'edat també depèn de la classe:
 
 <br>
 
