@@ -12,8 +12,8 @@ knitr::opts_chunk$set(echo = TRUE)
 Importem el dataset, disponible a <https://www.kaggle.com/c/titanic>
 
 ```{r}
-train <- read.csv("~/Desktop/train.csv")
-test <- read.csv("~/Desktop/test.csv")
+train <- read.csv("train.csv")
+test <- read.csv("test.csv")
 ```
 
 <br>
@@ -439,7 +439,7 @@ Donem un nou nom al dataset amb totes les correccions fetes, i l'exportem a un f
 
 ```{r}
 titanic1 <- titan
-write.csv(titanic1, "~/Desktop/titanic.csv", row.names = FALSE)
+write.csv(titanic1, "data/titanic.csv", row.names = FALSE)
 ```
 
 \
@@ -448,12 +448,12 @@ write.csv(titanic1, "~/Desktop/titanic.csv", row.names = FALSE)
 <br>\
 <br>\
 
-## VERIFICACIÓ DE LA NORMALITAT DE LES VARIABLES  
+## VERIFICACIÓ DE LA NORMALITAT DE LES VARIABLES
 
-Variables que cal validar la seva normalitat:  
-* *Fare*: dues mostres segons el sexe  
-* *Age*: menors de 14 anys, dues mostres: primera i tercera classe  
-* *Age*: dues mostres, primera i tercera classe  
+Variables que cal validar la seva normalitat:\
+\* *Fare*: dues mostres segons el sexe\
+\* *Age*: menors de 14 anys, dues mostres: primera i tercera classe\
+\* *Age*: dues mostres, primera i tercera classe
 
 ```{r}
 # Càrrega de la llibreria dplyr per a fer servir la funció shapiro.test()
