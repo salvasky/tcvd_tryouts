@@ -448,12 +448,17 @@ write.csv(titanic1, "data/titanic.csv", row.names = FALSE)
 <br>\
 <br>\
 
-## VERIFICACIÓ DE LA NORMALITAT DE LES VARIABLES
+## TESTS ESTADÍSTICS  
 
-Variables que cal validar la seva normalitat:\
-\* *Fare*: dues mostres segons el sexe\
-\* *Age*: menors de 14 anys, dues mostres: primera i tercera classe\
-\* *Age*: dues mostres, primera i tercera classe
+Proves a realitzar:  
+
+* Comparació de les mitjanes de preu de bitllet segons el sexe  
+* Comparació de la proporció d'infants (menors de 12 anys) entre classes  
+* Comparació de la mitjana d'edat segons la classe  
+
+## VERIFICACIÓ DE LA NORMALITAT DE LES VARIABLES  
+
+Per a les proves sobre la mitjana es pot assumir normalitat de les mitjanes d'acord amb el Teorema del Límit Central, per tant no cal verificar la normalitat mitjançant els tests en aquests casos.
 
 ```{r}
 # Càrrega de la llibreria dplyr per a fer servir la funció shapiro.test()
@@ -463,40 +468,58 @@ titanic_df <- read.csv("data/titanic.csv")
 
 ```
 
-Validació de la normalitat de la variable *Fare* segons el sexe:
+### Prova 1. Comparació de les mitjanes de preu del bitllet segons el sexe  
+
+Hipòtesi nul·la: En mitjana, els homes paguen més pel bitllet que les dones  
+
+Comprovació de l'homocedasticitat  
 
 ```{r}
-# Comprovació visual amb QQ-plot (homes)
-qqnorm(titanic_df[titanic_df$Sex == 'male',]$Fare)
-qqline(titanic_df[titanic_df$Sex == 'male',]$Fare, col='red')
-
-# Test de Shapiro-Wilk
-shapiro.test(titanic_df[titanic_df$Sex == 'male',]$Fare)
-
-# Comprovació visual amb QQ-plot (dones)
-qqnorm(titanic_df[titanic_df$Sex == 'female',]$Fare)
-qqline(titanic_df[titanic_df$Sex == 'female',]$Fare, col='red')
-
-# Test de Shapiro-Wilk
-shapiro.test(titanic_df[titanic_df$Sex == 'female',]$Fare)
+# Les variàncies del preu en funció del sexe són iguals
+fare_m <- titanic_df[titanic_df$Sex == 'male',]$Fare
+fare_f <- titanic_df[titanic_df$Sex == 'female',]$Fare
+var.test(fare_m,fare_f,conf.level = 0.95)
 
 ```
 
-Validació de la normalitat de la variable *Age* segons la classe:
+El valor de p-value resultant, de l'ordre de 1e-16, ens permet concloure que les dues variàncies són diferents amb un nivell de confiança del 95%. Donat que en aquest cas no es dona la condició d'homocedasticitat cal aplicar la prova no paramètrica de Wicoxon per a comprovar la validesa de la hipòtesi nul·la.  
 
 ```{r}
-# Comprovació visual amb QQ-plot (1a classe)
-qqnorm(titanic_df[titanic_df$Pclass == 1,]$Age)
-qqline(titanic_df[titanic_df$Pclass == 1,]$Age, col='red')
 
-# Test de Shapiro-Wilk
-shapiro.test(titanic_df[titanic_df$Pclass == 1,]$Age)
-
-# Comprovació visual amb QQ-plot (3a classe)
-qqnorm(titanic_df[titanic_df$Pclass == 3,]$Age)
-qqline(titanic_df[titanic_df$Pclass == 3,]$Age, col='red')
-
-# Test de Shapiro-Wilk
-shapiro.test(titanic_df[titanic_df$Pclass == 3,]$Age)
+wilcox.test(fare_m, fare_f, alternative = 'greater', conf.level=0.95)
 
 ```
+
+El valor de p-Value resultant ens permet acceptar la hipotesi nul·la i afirmar, amb un nivell de confiança del 95%, que en mitjana els homes paguen més pel bitllet que les dones.
+
+### Prova 2. Comparació de la proporció d'infants (menors de 12 anys) entre classes  
+
+*Pendent*
+
+### Prova 3. Comparació de la mitjana d'edat segons la classe  
+
+Hipòtesi nul·la: la mitjana d'edat a totes les classes és la mateixa.  
+
+Es suposa normalitat segons el TLC.  
+
+Comprovació de l'homocedasticitat  
+
+```{r}
+# Les variàncies de l'edat en funció de la classe són iguals
+
+age_first <- titanic_df[titanic_df$Pclass == 1,]$Age
+age_second <- titanic_df[titanic_df$Pclass == 2,]$Age
+age_third <- titanic_df[titanic_df$Pclass == 3,]$Age
+
+var.test(age_first, age_third, conf.level = 0.95)
+
+```
+El valor de p-value resultant, de l'ordre de 1e-9, ens permet concloure que les variàncies de la variable Age entre les diferents classes són diferents amb un nivell de confiança del 95%. Donat que en aquest cas no es dona la condició d'homocedasticitat cal aplicar la prova no paramètrica de Wicoxon per a comprovar la validesa de la hipòtesi nul·la.
+
+```{r}
+
+wilcox.test(age_first, age_third, conf.level=0.95)
+
+```
+
+El valor de p-Value resultant, de l'ordre de 1e-16, ens permet rebutjar la hipotesi nul·la i afirmar, amb un nivell de confiança del 95%, que hi ha diferències en la mitjana d'edat dels passatgers de primera i tercera classe.
