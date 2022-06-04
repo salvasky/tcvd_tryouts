@@ -448,15 +448,15 @@ write.csv(titanic1, "data/titanic.csv", row.names = FALSE)
 <br>\
 <br>\
 
-## TESTS ESTADÍSTICS  
+## TESTS ESTADÍSTICS
 
-Proves a realitzar:  
+Proves a realitzar:
 
-* Comparació de les mitjanes de preu de bitllet segons el sexe  
-* Comparació de la proporció d'infants (menors de 12 anys) entre classes  
-* Comparació de la mitjana d'edat segons la classe  
+-   Comparació de les mitjanes de preu de bitllet segons el sexe\
+-   Comparació de la proporció d'infants (menors de 12 anys) entre classes\
+-   Comparació de la mitjana d'edat segons la classe
 
-## VERIFICACIÓ DE LA NORMALITAT DE LES VARIABLES  
+## VERIFICACIÓ DE LA NORMALITAT DE LES VARIABLES
 
 Per a les proves sobre la mitjana es pot assumir normalitat de les mitjanes d'acord amb el Teorema del Límit Central, per tant no cal verificar la normalitat mitjançant els tests en aquests casos.
 
@@ -468,11 +468,11 @@ titanic_df <- read.csv("data/titanic.csv")
 
 ```
 
-### Prova 1. Comparació de les mitjanes de preu del bitllet segons el sexe  
+### Prova 1. Comparació de les mitjanes de preu del bitllet segons el sexe
 
-Hipòtesi nul·la: En mitjana, els homes paguen més pel bitllet que les dones  
+Hipòtesi nul·la: En mitjana, els homes paguen més pel bitllet que les dones
 
-Comprovació de l'homocedasticitat  
+Comprovació de l'homocedasticitat
 
 ```{r}
 # Les variàncies del preu en funció del sexe són iguals
@@ -482,7 +482,7 @@ var.test(fare_m,fare_f,conf.level = 0.95)
 
 ```
 
-El valor de p-value resultant, de l'ordre de 1e-16, ens permet concloure que les dues variàncies són diferents amb un nivell de confiança del 95%. Donat que en aquest cas no es dona la condició d'homocedasticitat cal aplicar la prova no paramètrica de Wicoxon per a comprovar la validesa de la hipòtesi nul·la.  
+El valor de p-value resultant, de l'ordre de 1e-16, ens permet concloure que les dues variàncies són diferents amb un nivell de confiança del 95%. Donat que en aquest cas no es dona la condició d'homocedasticitat cal aplicar la prova no paramètrica de Wicoxon per a comprovar la validesa de la hipòtesi nul·la.
 
 ```{r}
 
@@ -492,17 +492,38 @@ wilcox.test(fare_m, fare_f, alternative = 'greater', conf.level=0.95)
 
 El valor de p-Value resultant ens permet acceptar la hipotesi nul·la i afirmar, amb un nivell de confiança del 95%, que en mitjana els homes paguen més pel bitllet que les dones.
 
-### Prova 2. Comparació de la proporció d'infants (menors de 12 anys) entre classes  
+### Prova 1 - Alternativa
+
+Primer de tot, mostrem les mitjanes dels dos grups:
+
+```{r}
+mean(fare_m)
+mean(fare_f)
+```
+
+Veiem que, de mitjana, les dones paguen més que els homes. La prova consistirà a determinar si aquesta diferència és estadísticament significativa.
+
+Per tant, la nostra hipòtesi serà:
+
+H~0~ : 𝛍~fare_f~ = 𝛍~fare_m~
+
+H~1~ : 𝛍~fare_f~ \> 𝛍~fare_m~
+
+Hipòtesi nul·la: les mitjanes de preu entre homes i dones és igual
+
+Hipòtesi alternativa: les dones paguen un preu més alt que els homes
+
+### Prova 2. Comparació de la proporció d'infants (menors de 12 anys) entre classes
 
 *Pendent*
 
-### Prova 3. Comparació de la mitjana d'edat segons la classe  
+### Prova 3. Comparació de la mitjana d'edat segons la classe
 
-Hipòtesi nul·la: la mitjana d'edat a totes les classes és la mateixa.  
+Hipòtesi nul·la: la mitjana d'edat a totes les classes és la mateixa.
 
-Es suposa normalitat segons el TLC.  
+Es suposa normalitat segons el TLC.
 
-Comprovació de l'homocedasticitat  
+Comprovació de l'homocedasticitat
 
 ```{r}
 # Les variàncies de l'edat en funció de la classe són iguals
@@ -514,6 +535,7 @@ age_third <- titanic_df[titanic_df$Pclass == 3,]$Age
 var.test(age_first, age_third, conf.level = 0.95)
 
 ```
+
 El valor de p-value resultant, de l'ordre de 1e-9, ens permet concloure que les variàncies de la variable Age entre les diferents classes són diferents amb un nivell de confiança del 95%. Donat que en aquest cas no es dona la condició d'homocedasticitat cal aplicar la prova no paramètrica de Wicoxon per a comprovar la validesa de la hipòtesi nul·la.
 
 ```{r}
