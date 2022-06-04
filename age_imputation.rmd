@@ -497,11 +497,16 @@ El valor de p-Value resultant ens permet acceptar la hipotesi nul·la i afirmar,
 Primer de tot, mostrem les mitjanes dels dos grups:
 
 ```{r}
+library(ggplot2)
+ggplot(aes(y=Fare, x=Sex), data=titanic_df) + geom_boxplot()
+```
+
+```{r}
 mean(fare_m)
 mean(fare_f)
 ```
 
-Veiem que, de mitjana, les dones paguen més que els homes. La prova consistirà a determinar si aquesta diferència és estadísticament significativa.
+Veiem que, de mitjana, les dones paguen més que els homes. També veiem, però, que aquesta diferència sembla petita si tenim en compte la distribució total de la variable 'Fare' sobre els dos grups. La nostra prova doncs consistirà a determinar si la diferència de preus entre dones i homes és estadísticament significativa.
 
 Per tant, la nostra hipòtesi serà:
 
@@ -512,6 +517,20 @@ H~1~ : 𝛍~fare_f~ \> 𝛍~fare_m~
 Hipòtesi nul·la: les mitjanes de preu entre homes i dones és igual
 
 Hipòtesi alternativa: les dones paguen un preu més alt que els homes
+
+Tenint en compte les proves d'homocedasticitat, i assumint una distribució normal segons el teorema del límit central, farem un test sobre la mitjana de dues mostres independents amb variància desconeguda i diferent:
+
+```{r}
+t.test(fare_f, fare_m, alternative = "greater", var.equal = FALSE)
+```
+
+La prova estadística ens indica, amb un valor p per sota del nivell de significació, que podem rebutjar la hipòtesi nul·la. Per tant la conclusió és que la diferència de preu entre homes i dones és estadísticament significativa, i les dones paguen més que els homes.
+
+Amb el test de Wilcoxon, mateixa conclusió:
+
+```{r}
+wilcox.test(fare_f, fare_m, alternative = 'greater', conf.level=0.95)
+```
 
 ### Prova 2. Comparació de la proporció d'infants (menors de 12 anys) entre classes
 
