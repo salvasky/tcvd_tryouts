@@ -39,25 +39,556 @@ Aquest famós joc de dades conté informació sobre els passatgers que viatjaven
 
 A la pàgina de Kaggle, com que el dataset es presenta com a material de base per a un exercici de machine learning, es divideix el datatset en un grup 'train' i un grup 'test'. La idea és utilitzar el grup 'train' per elaborar un model que pugui predir la supervivència dels passatgers del grup 'test'.
 
-A nosaltres, en canvi, ens interessa aquest dataset per fer un estudi d'interès sociològic/històric, en el qual no ens centrem en l'accident del Titanic ni en els índex de supervivència, sinó que aprofitem la informació del dataset per aprofundir sobre factors demogràfics i econòmics que ens ajudin a construir una imatge del moviment migratori envers els EUA a principis del segle XX. En aquest sentit doncs, utilitzarem el joc de dades complet, ajuntant els grups 'train' i 'test' i descartant la variable 'survival', i plantejarem preguntes com: viatjar era més car pels homes que per les dones? Els preus dels bitllets es definien tenint en compte l'edat del passatger? Viatjaven més nens a tercera classe que a primera? Viatjaven més homes joves a tercera classe?
+Nosaltres, en canvi, utilitzem aquest dataset per fer un estudi d'interès sociològic/històric, en el qual no ens centrem en l'accident del Titanic ni en els índexs de supervivència, sinó que aprofitem la informació del dataset per aprofundir sobre factors demogràfics i econòmics que ens ajudin a construir una imatge del moviment migratori envers els EUA a principis del segle XX. En aquest sentit doncs, utilitzarem el joc de dades complet, ajuntant els grups 'train' i 'test' i descartant la variable 'survival', i plantejarem preguntes com: viatjar era més car pels homes que per les dones? Els preus dels bitllets es definien tenint en compte l'edat del passatger? Viatjaven més nens a tercera classe que a primera? Viatjaven més homes joves a tercera classe?
+
+<br>
 
 # 2. Integració i selecció de les dades d'interès a analitzar
 
+<br>
+
+Importem el dataset, disponible a [<https://www.kaggle.com/c/titanic>](https://www.kaggle.com/c/titanic){.uri}
+
+```{r}
+train <- read.csv("train.csv")
+test <- read.csv("test.csv")
+```
+
+<br>
+
+Ajuntem els dos datasets, seleccionant-ne només les variables que ens interessen pel nostre estudi: 'Pclass', 'Name', 'Sex', 'Age', 'Fare' i 'Embarked'.
+
+```{r}
+train2 <- train[,c(3:6, 10, 12)]
+test2 <- test[,c(2:5, 9, 11)] 
+
+titan <- rbind(train2, test2)
+```
+
+<br>
+
+Transformem a factor diverses de les variables:
+
+```{r}
+titan$Pclass <- as.factor(titan$Pclass)
+titan$Sex <- as.factor(titan$Sex)
+titan$Embarked <- as.factor(titan$Embarked)
+
+```
+
+<br>
+
+<br>
+
 # 3. Neteja de les dades
+
+<br>
 
 ## 3.1 Zeros o elements buits
 
-## 3.2 Valors extrems (outliers)
+<br>
+
+Veiem que hi ha 263 valors buits a la variable 'Age':
+
+```{r}
+colSums(is.na(titan))
+```
+
+<br>
+
+Per analitzar com es distribueix la variable Age més enllà dels valors que manquen, separem el conjunt de dades amb valors buits. Primer de tot, generarem una nova columna, anomenada 'title', que ens permetrà mostrar la relació entre l'edat i el títol nominatiu dels passatgers:
+
+```{r}
+
+titan$ext_1 <- sub(".*, ", "", titan$Name)
+titan$title <- sub(" .*", "", titan$ext_1)
+levels(as.factor(titan$title))
+```
+
+<br>
+
+```{r}
+no_na_titan <- titan[!is.na(titan$Age),]
+na_titan <- titan[is.na(titan$Age),]
+```
+
+<br>
+
+Ara mostrem com es distribueix l'edat en funció de la classe:
+
+```{r}
+library(ggplot2)
+ggplot(aes(y=Age, x=Pclass), data=no_na_titan) + geom_boxplot()
+```
+
+<br>
+
+I també podem mostrar com diferents títols defineixen diferents grups d'edat:
+
+```{r}
+library(ggplot2)
+ggplot(aes(y=Age, x=title), data=no_na_titan) + geom_boxplot()
+```
+
+<br>
+
+Donades aquestes diferències, intentarem trobar valors encara més precisos en la intersecció de les variables classe i títol.
+
+<br>
+
+La idea que plantegem doncs per tal d'imputar els 263 valors absents de la variable edat és crear diversos subgrups per tal de fer una aproximació més precisa a la possible edat de les persones. En primer lloc, utilitzem el fet que el títol (Mr., Miss., etc.) té una relació amb l'edat. L'exemple més clar és el títol 'Master', que s'utilitza només per a nens. Els altres grups no són tan reduïts, però sí que detectem una mitjana d'edat diferent en el grup Mr. que en el grup Mrs.
+
+<br>
+
+La segona variable que utilitzarem per aproximar l'edat és la variable 'Pclass'. Ens adonem que, per exemple, els homes de primera classe són de mitjana més grans que els homes de tercera. Combinant classe i títol, podem imputar els registres amb valors més precisos (en lloc d'atorgar a tothom una mitjana de 33 anys, que no seria adient en molts casos). Separem doncs el dataset (sense valors nuls) en tres classes:
+
+```{r}
+first_cl <- no_na_titan[no_na_titan$Pclass == 1,]
+second_cl <- no_na_titan[no_na_titan$Pclass == 2,]
+third_cl <- no_na_titan[no_na_titan$Pclass == 3,]
+
+```
+
+\
+<br>
+
+Abans de procedir, comprovem també si la variable 'Fare' pot tenir relació amb l'edat. Imaginàvem que potser l'edat es veu reflectida en el preu dels bitllets. Veiem però que no es dóna aquesta correlació:
+
+```{r}
+cor(second_cl$Age, second_cl$Fare)
+```
+
+<br>
+
+Mostrem quins són els títols dels registres amb valors nuls, i veiem que no caldrà utilitzar tots els títols. Només manquen valors en els títols següents:
+
+```{r}
+levels(as.factor(na_titan$title))
+```
+
+<br>
+
+Iniciem doncs el procés d'imputació prenent com a referència classe i títol.
+
+Comencem pels registres amb títol Dr. Primer mostrem en quina combinació del títol Dr. i classe hi ha valors buits:
+
+```{r}
+titan$Age[titan$title == "Dr." & titan$Pclass == 1]
+titan$Age[titan$title == "Dr." & titan$Pclass == 2]
+titan$Age[titan$title == "Dr." & titan$Pclass == 3]
+
+
+```
+
+Veiem que en aquest cas, només hi ha un valor buit en passatgers amb títol Dr. de primera classe (a segona no hi ha Dr. amb valors buits, i a tercera no hi ha cap passatger amb títol Dr.)
+
+<br>
+
+En el següent gràfic, observem les diferències entre mitjanes d'edat dels grups de 1a i 3a classe:
+
+```{r}
+mdr1 <- mean(no_na_titan$Age[no_na_titan$title == "Dr." & no_na_titan$Pclass == 1])
+mdr2 <- mean(no_na_titan$Age[no_na_titan$title == "Dr." & no_na_titan$Pclass == 2])
+```
+
+```{r}
+dr <- c(mdr1, mdr2)
+barplot(dr, xlab = 'group', ylab = 'Mean Age', names.arg = c('Dr./1st Class', 'Dr./2nd Class'), col = 'darkblue')
+```
+
+<br>
+
+Comprovem que no hi hagi outliers en la distribució de passatgers amb títol Dr. a 1a classe:
+
+```{r}
+boxplot(first_cl$Age[first_cl$title == "Dr."])
+boxplot.stats(first_cl$Age[first_cl$title == "Dr."])$out
+```
+
+\
+<br>
+
+Veiem que, efectivament, hi ha un valor extrem baix que té un efecte sobre la mitjana. Optem per utilitzar la mediana en lloc de la mitjana per trobar una edat més central en la distribució del grup. Imputem doncs el valor NA per títol Dr. i primera classe en el dataset original utilitzant la mediana d'edat de passatgers Dr. de primera classe provinent del dataset que no conté valors nuls:
+
+```{r}
+imp_dr_1 <- median(first_cl$Age[first_cl$title == "Dr."])
+imp_dr_1
+
+titan$Age[is.na(titan$Age) & titan$title == "Dr." & titan$Pclass == 1] <- imp_dr_1
+titan$Age[titan$title == "Dr." & titan$Pclass == 1]
+
+```
+
+<br>
+
+Realitzarem a partir d'aquí el mateix procediment per cadascun dels grups que es creen en la intersecció dels factors classe i títol.
+
+<br>
+
+Trobem els valors buits pels passatgers amb títol 'Master.':
+
+```{r}
+
+titan$Age[titan$title == "Master." & titan$Pclass == 1]
+titan$Age[titan$title == "Master." & titan$Pclass == 2]
+titan$Age[titan$title == "Master." & titan$Pclass == 3]
+```
+
+Veiem que només hi ha valors buits a tercera classe.\
+<br>
+
+Visualitzem les diferències d'edat pels passatgers amb títol 'Master.' segons classe:
+
+```{r}
+mmas1 <- mean(no_na_titan$Age[no_na_titan$title == "Master." & no_na_titan$Pclass == 1])
+mmas2 <- mean(no_na_titan$Age[no_na_titan$title == "Master." & no_na_titan$Pclass == 2])
+mmas3 <- mean(no_na_titan$Age[no_na_titan$title == "Master." & no_na_titan$Pclass == 3])
+
+master <- c(mmas1, mmas2, mmas3)
+barplot(master, xlab = 'group', ylab = 'Mean Age', names.arg = c('Master./1st Class', 'Master./2nd Class', 'Master./3rd Class'), col = 'darkblue')
+```
+
+<br>
+
+Comprovem si hi ha outliers:
+
+```{r}
+boxplot.stats(third_cl$Age[third_cl$title == "Master."])$out
+```
+
+<br>
+
+Imputem valors només pels passatgers de tercera classe:
+
+```{r}
+
+imp_master_3 <- mean(third_cl$Age[third_cl$title == "Master."])
+
+```
+
+\
+<br>
+
+```{r}
+titan$Age[is.na(titan$Age) & titan$title == "Master." & titan$Pclass == 3] <- imp_master_3
+titan$Age[titan$title == "Master." & titan$Pclass == 3]
+```
+
+\
+<br>
+
+<br>
+
+Busquem valors buits al grup amb títol 'Miss.':
+
+```{r}
+titan$Age[titan$title == "Miss." & titan$Pclass == 1]
+titan$Age[titan$title == "Miss." & titan$Pclass == 2]
+titan$Age[titan$title == "Miss." & titan$Pclass == 3]
+```
+
+<br>
+
+Visualitzem les diferents mitjanes d'edat:
+
+```{r}
+miss1 <- mean(no_na_titan$Age[no_na_titan$title == "Miss." & no_na_titan$Pclass == 1])
+miss2 <- mean(no_na_titan$Age[no_na_titan$title == "Miss." & no_na_titan$Pclass == 2])
+miss3 <- mean(no_na_titan$Age[no_na_titan$title == "Miss." & no_na_titan$Pclass == 3])
+
+miss <- c(miss1, miss2, miss3)
+barplot(miss, xlab = 'group', ylab = 'Mean Age', names.arg = c('Miss./1st Class', 'Miss./2nd Class', 'Miss./3rd Class'), col = 'darkblue')
+```
+
+\
+<br>
+
+Comprovem outliers:
+
+```{r}
+boxplot.stats(first_cl$Age[first_cl$title == "Miss."])$out
+boxplot.stats(second_cl$Age[second_cl$title == "Miss."])$out
+boxplot.stats(third_cl$Age[third_cl$title == "Miss."])$out
+```
+
+```{r}
+boxplot(first_cl$Age[first_cl$title == "Miss."])
+boxplot(third_cl$Age[third_cl$title == "Miss."])
+```
+
+```{r}
+mean(first_cl$Age[first_cl$title == "Miss."])
+median(first_cl$Age[first_cl$title == "Miss."])
+```
+
+```{r}
+mean(third_cl$Age[third_cl$title == "Miss."])
+median(third_cl$Age[third_cl$title == "Miss."])
+```
+
+En aquest cas, veiem que els outliers detectats no donen suport a un canvi d'estratègia. En els dos casos, la diferència entre mitjana i mediana és mínima. Seguim doncs utilitzant la mitjana per imputar valors nuls en ambdós grups.
+
+<br>
+
+```{r}
+imp_miss_1 <- mean(first_cl$Age[first_cl$title == "Miss."])
+imp_miss_2 <- mean(second_cl$Age[second_cl$title == "Miss."])
+imp_miss_3 <- mean(third_cl$Age[third_cl$title == "Miss."])
+imp_miss_1
+imp_miss_2
+imp_miss_3
+```
+
+\
+<br>
+
+```{r}
+
+titan$Age[is.na(titan$Age) & titan$title == "Miss." & titan$Pclass == 1] <- imp_miss_1
+titan$Age[titan$title == "Miss." & titan$Pclass == 1]
+
+
+titan$Age[is.na(titan$Age) & titan$title == "Miss." & titan$Pclass == 2] <- imp_miss_2
+titan$Age[titan$title == "Miss." & titan$Pclass == 2]
+
+titan$Age[is.na(titan$Age) & titan$title == "Miss." & titan$Pclass == 3] <- imp_miss_3
+titan$Age[titan$title == "Miss." & titan$Pclass == 3]
+```
+
+<br>
+
+Busquem valors buits al grup 'Mrs.':
+
+```{r}
+titan$Age[titan$title == "Mrs." & titan$Pclass == 1]
+titan$Age[titan$title == "Mrs." & titan$Pclass == 2]
+titan$Age[titan$title == "Mrs." & titan$Pclass == 3]
+```
+
+<br>
+
+Visualitzem les diferències d'edat entre grups:
+
+```{r}
+mrs1 <- mean(no_na_titan$Age[no_na_titan$title == "Mrs." & no_na_titan$Pclass == 1])
+mrs2 <- mean(no_na_titan$Age[no_na_titan$title == "Mrs." & no_na_titan$Pclass == 2])
+# En el grup de tercera classe, la presència d'outliers ens fa optar per utilitzar la mediana
+mrs3 <- median(no_na_titan$Age[no_na_titan$title == "Mrs." & no_na_titan$Pclass == 3])
+
+mrs <- c(mrs1, mrs2, mrs3)
+barplot(mrs, xlab = 'group', ylab = 'Mean Age', names.arg = c('Mrs./1st Class', 'Mrs./2nd Class', 'Mrs./3rd Class'), col = 'darkblue')
+```
+
+<br>
+
+Comprovem outliers:
+
+```{r}
+boxplot.stats(first_cl$Age[first_cl$title == "Mrs."])$out
+boxplot.stats(second_cl$Age[second_cl$title == "Mrs."])$out
+boxplot.stats(third_cl$Age[third_cl$title == "Mrs."])$out
+
+mean(third_cl$Age[third_cl$title == "Mrs."])
+median(third_cl$Age[third_cl$title == "Mrs."])
+```
+
+En aquest cas sí que veiem que un únic valor (63) afecta la mitjana d'edat de les passatgeres 'Mrs.' de tercera classe. En aquest cas concret doncs, només pel grup de tercera classe, optarem per utilitzar la mediana per fer la imputació.
+
+<br>\
+
+```{r}
+imp_mrs_1 <- mean(first_cl$Age[first_cl$title == "Mrs."])
+imp_mrs_2 <- mean(second_cl$Age[second_cl$title == "Mrs."])
+imp_mrs_3 <- median(third_cl$Age[third_cl$title == "Mrs."])
+imp_mrs_1
+imp_mrs_2
+imp_mrs_3
+```
+
+<br>
+
+```{r}
+titan$Age[is.na(titan$Age) & titan$title == "Mrs." & titan$Pclass == 1] <- imp_mrs_1
+titan$Age[titan$title == "Mrs." & titan$Pclass == 1]
+
+titan$Age[is.na(titan$Age) & titan$title == "Mrs." & titan$Pclass == 2] <- imp_mrs_2
+titan$Age[titan$title == "Mrs." & titan$Pclass == 2]
+
+titan$Age[is.na(titan$Age) & titan$title == "Mrs." & titan$Pclass == 3] <- imp_mrs_3
+titan$Age[titan$title == "Mrs." & titan$Pclass == 3]
+```
+
+<br>
+
+Trobem valors buits al grup 'Mr.':
+
+```{r}
+titan$Age[titan$title == "Mr." & titan$Pclass == 1]
+titan$Age[titan$title == "Mr." & titan$Pclass == 2]
+titan$Age[titan$title == "Mr." & titan$Pclass == 3]
+```
+
+<br>
+
+Visualitzem diferències d'edat pel grup 'Mr.':
+
+```{r}
+mr1 <- mean(no_na_titan$Age[no_na_titan$title == "Mr." & no_na_titan$Pclass == 1])
+# Com que els outliers influeixen sobre la mitjana, utilitzem la mediana pels grups de segona i tercera classe
+mr2 <- median(no_na_titan$Age[no_na_titan$title == "Mr." & no_na_titan$Pclass == 2])
+mr3 <- median(no_na_titan$Age[no_na_titan$title == "Mr." & no_na_titan$Pclass == 3])
+
+mr <- c(mr1, mr2, mr3)
+barplot(mr, xlab = 'group', ylab = 'Mean Age', names.arg = c('Mr./1st Class', 'Mr./2nd Class', 'Mr./3rd Class'), col = 'darkblue')
+```
+
+<br>
+
+Comprovem outliers:
+
+```{r}
+boxplot.stats(first_cl$Age[first_cl$title == "Mr."])$out
+boxplot.stats(second_cl$Age[second_cl$title == "Mr."])$out
+boxplot.stats(third_cl$Age[third_cl$title == "Mr."])$out
+```
+
+```{r}
+mean(second_cl$Age[second_cl$title == "Mr."])
+median(second_cl$Age[second_cl$title == "Mr."])
+
+mean(third_cl$Age[third_cl$title == "Mr."])
+median(third_cl$Age[third_cl$title == "Mr."])
+```
+
+En els grups de segona i tercera també optarem per utilitzar la mediana en lloc de la mitjana.
+
+<br>
+
+```{r}
+imp_mr_1 <- mean(first_cl$Age[first_cl$title == "Mr."])
+imp_mr_2 <- median(second_cl$Age[second_cl$title == "Mr."])
+imp_mr_3 <- median(third_cl$Age[third_cl$title == "Mr."])
+imp_mr_1
+imp_mr_2
+imp_mr_3
+```
+
+\
+<br>
+
+Imputem els valors:
+
+```{r}
+titan$Age[is.na(titan$Age) & titan$title == "Mr." & titan$Pclass == 1] <- imp_mr_1
+titan$Age[titan$title == "Mr." & titan$Pclass == 1]
+
+titan$Age[is.na(titan$Age) & titan$title == "Mr." & titan$Pclass == 2] <- imp_mr_2
+titan$Age[titan$title == "Mr." & titan$Pclass == 2]
+
+titan$Age[is.na(titan$Age) & titan$title == "Mr." & titan$Pclass == 3] <- imp_mr_3
+titan$Age[titan$title == "Mr." & titan$Pclass == 3]
+```
+
+\
+<br>
+
+Comprovem finalment el grup 'Ms.':
+
+<br>
+
+```{r}
+titan$Age[titan$title == "Ms." & titan$Pclass == 1]
+titan$Age[titan$title == "Ms." & titan$Pclass == 2]
+titan$Age[titan$title == "Ms." & titan$Pclass == 3]
+```
+
+<br>
+
+En aquest cas no tenim referència. Imputarem l'únic valor nul amb la referència de la mitjana d'edat que hem creat anteriorment pel títol 'Mrs.' de tercera classe:
+
+```{r}
+titan$Age[is.na(titan$Age) & titan$title == "Ms." & titan$Pclass == 3] <- imp_mrs_3
+titan$Age[titan$title == "Ms." & titan$Pclass == 3]
+```
+
+<br>
+
+```{r}
+summary(titan$Age)
+```
+
+<br>
+
+Detectem alguns valors buits a la variable 'Embarked':
+
+```{r}
+levels(titan$Embarked)
+```
+
+<br>
+
+```{r}
+summary(titan$Embarked)
+```
+
+<br>
+
+Mostrem els dos registres dels quals no disposem port d'embarcament:
+
+```{r}
+titan[titan$Embarked == "",]
+```
+
+<br>
+
+No tenim manera d'imputar aquests valors, i per tant hi assignem NA:
+
+```{r}
+titan$Embarked[titan$Embarked == ""] <- NA
+summary(titan$Embarked)
+```
+
+<br>
+
+Detectem també un valor buit a la variable 'Fare';
+
+```{r}
+titan[is.na(titan$Fare),]
+```
+
+<br>
+
+Trobem quina és la mitjana del preu del bitllet pels passatgers de tercera classe, i el fem servir per imputar aquest únic valor buit:
+
+```{r}
+fare_3rd <- mean(titan$Fare[!is.na(titan$Fare) & titan$Pclass == 3])
+```
+
+```{r}
+titan$Fare[is.na(titan$Fare)] <- fare_3rd
+```
+
+<br>
+
+```{r}
+summary(titan)
+```
+
+<br>
+
+## 3.2 Altres valors extrems (outliers)
+
+<br>
 
 # 4. Anàlisi de les dades
 
 En aquesta secció farem l'anàlisi de les dades sota estudi. En concret estem interessats en els següents aspectes:
 
 -   Diferència de tarifa en funció del gènere del passatger.\
-
 -   Relació entre el port d'embarcament i la classe.\
-
 -   Mitjana d'edat dels passatgers a cadascuna de les classes.
+
+<br>
 
 ## 4.1 Prova 1. Diferència de tarifa en funció del gènere del passatger.
 
@@ -257,17 +788,25 @@ pairwise.t.test(titanic1$Age, titanic1$Pclass, p.adj='bonferroni')
 
 <br>
 
+Per avaluar l'adequació del model que hem generat, comprovem primer l'homocedasticitat dels residus:
+
 ```{r}
 plot(resultat, which = 1)
 ```
 
+El gràfic no mostra un patró clar, i per tant podem afirmar que no hi ha un problema d'homocedasticitat.
+
 <br>
+
+En canvi, sí que observem una desvisació de la normalitat dels residus:
 
 ```{r}
 plot(resultat, which = 2)
 ```
 
 <br>
+
+Així doncs, apliquem un test de Kruskal-Wallis, que no assumeix la normalitat de la distribució de les dades, i obtenim resultats que confirmen la diferència significativa entre grups:
 
 ```{r}
 kruskal.test(Age~Pclass, data = titanic1)

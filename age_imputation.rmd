@@ -464,7 +464,7 @@ Per a les proves sobre la mitjana es pot assumir normalitat de les mitjanes d'ac
 # Càrrega de la llibreria dplyr per a fer servir la funció shapiro.test()
 library(dplyr)
 
-titanic_df <- read.csv("data/titanic.csv")
+titanic_df <- read.csv("data/titanic1.csv")
 
 ```
 
