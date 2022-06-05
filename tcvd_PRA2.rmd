@@ -1,6 +1,6 @@
 ---
 title: "Tipologia i Cicle de Vida de les Dades. Pràctica 2"
-author: "*Salva Sanchis Beneseit* i *Joan Manuel Lopez Ruiz*"
+author: "*Salvador Sanchis Beneseit* i *Joan Manuel Lopez Ruiz*"
 date: '`r format(Sys.Date(),"%e %B de %Y")`'
 output:
   html_document:
@@ -18,11 +18,11 @@ library(ggplot2)
 
 ```
 
-# 1. Introducció. Descripció del dataset  
-Hem utilitzat el dataset "Titanic: Machine Learning from Disaster", disponible a https://www.kaggle.com/c/titanic
+# 1. Introducció. Descripció del dataset
+
+Hem utilitzat el dataset "Titanic: Machine Learning from Disaster", disponible a <https://www.kaggle.com/c/titanic>
 
 Aquest famós joc de dades conté informació sobre els passatgers que viatjaven al Titanic quan es va enfonsar, el 15 d'Abril del 1912. Les variables incloses en el joc de dades són:
-
 
 | **Variable** | **Definition**                  | **Key**                                        |
 |--------------|---------------------------------|------------------------------------------------|
@@ -37,64 +37,62 @@ Aquest famós joc de dades conté informació sobre els passatgers que viatjaven
 | cabin        | Número de cabina                |                                                |
 | embarked     | Port d'embarcament              | C = Cherbourg, Q = Queenstown, S = Southampton |
 
-
 A la pàgina de Kaggle, com que el dataset es presenta com a material de base per a un exercici de machine learning, es divideix el datatset en un grup 'train' i un grup 'test'. La idea és utilitzar el grup 'train' per elaborar un model que pugui predir la supervivència dels passatgers del grup 'test'.
 
-A nosaltres, en canvi, ens interessa aquest dataset per fer un estudi d'interès sociològic/històric, en el qual no ens centrem en l'accident del Titanic ni en els índex de supervivència, sinó que aprofitem la informació del dataset per aprofundir sobre factors demogràfics i econòmics que ens ajudin a construir una imatge del moviment migratori envers els EUA a principis del segle XX. En aquest sentit doncs, utilitzarem el joc de dades complet, ajuntant els grups 'train' i 'test' i descartant la variable 'survival', i plantejarem preguntes com: viatjar era més car pels homes que per les dones? Els preus dels bitllets es definien tenint en compte l'edat del passatger? Viatjaven més nens a tercera classe que a primera? Viatjaven més homes joves a tercera classe?  
+A nosaltres, en canvi, ens interessa aquest dataset per fer un estudi d'interès sociològic/històric, en el qual no ens centrem en l'accident del Titanic ni en els índex de supervivència, sinó que aprofitem la informació del dataset per aprofundir sobre factors demogràfics i econòmics que ens ajudin a construir una imatge del moviment migratori envers els EUA a principis del segle XX. En aquest sentit doncs, utilitzarem el joc de dades complet, ajuntant els grups 'train' i 'test' i descartant la variable 'survival', i plantejarem preguntes com: viatjar era més car pels homes que per les dones? Els preus dels bitllets es definien tenint en compte l'edat del passatger? Viatjaven més nens a tercera classe que a primera? Viatjaven més homes joves a tercera classe?
 
-# 2. Integració i selecció de les dades d'interès a analitzar  
+# 2. Integració i selecció de les dades d'interès a analitzar
 
-# 3. Neteja de les dades  
+# 3. Neteja de les dades
 
-## 3.1 Zeros o elements buits  
+## 3.1 Zeros o elements buits
 
-## 3.2 Valors extrems (outliers)  
+## 3.2 Valors extrems (outliers)
 
-# 4. Anàlisi de les dades  
-En aquesta secció farem l'anàlisi de les dades sota estudi. En concret estem interessats en els següents aspectes:  
+# 4. Anàlisi de les dades
 
-* Diferència de tarifa en funció del gènere del passatger.  
-* Relació entre el port d'embarcament i la classe.  
-* Mitjana d'edat dels passatgers a cadascuna de les classes.  
+En aquesta secció farem l'anàlisi de les dades sota estudi. En concret estem interessats en els següents aspectes:
 
-Abans de començar, però, cal carregar les dades del csv preparat i transformar la variable Pclass de numèrica a categòrica.  
+-   Diferència de tarifa en funció del gènere del passatger.\
+-   Relació entre el port d'embarcament i la classe.\
+-   Mitjana d'edat dels passatgers a cadascuna de les classes.
+
+Abans de començar, però, cal carregar les dades del csv preparat.
 
 ```{r}
 # Lectura del fitxer csv preprocessat
-titanic_df <- read.csv("data/titanic.csv")
-
-# Conversió de la variable Pclass a categòrica
-titanic_df$Pclass <- as.factor(titanic_df$Pclass)
+titanic_df <- read.csv("data/titanic1.csv")
 
 ```
 
-## 4.1 Prova 1. Diferència de tarifa en funció del gènere del passatger.  
-En aquesta prova volem comprovar si hi ha diferències en la quantitat mitjana que han pagat homes i dones per a embarcar.  
+## 4.1 Prova 1. Diferència de tarifa en funció del gènere del passatger.
 
-### 4.1.1 Selecció dels grups de dades a analitzar/comparar  
-En aquest cas farem una anàlisi d'una variable numèrica *Fare* respecte una variable categòrica *Sex*. Volem fer una prova de contrast d'hipòtesis en la que ens plantegem si en mitjana homes i dones han pagat el mateix pels seus bitllets.  
+En aquesta prova volem comprovar si hi ha diferències en la quantitat mitjana que han pagat homes i dones per a embarcar.
 
-Abans de començar a plantejar el test estadístic visualitzarem les diferències en la distribució de la variable *Fare* en funció de la variable *Sex* amb una gràfica boxplot.  
+### 4.1.1 Selecció dels grups de dades a analitzar/comparar
+
+En aquest cas farem una anàlisi d'una variable numèrica *Fare* respecte una variable categòrica *Sex*. Volem fer una prova de contrast d'hipòtesis en la que ens plantegem si en mitjana homes i dones han pagat el mateix pels seus bitllets.
+
+Abans de començar a plantejar el test estadístic visualitzarem les diferències en la distribució de la variable *Fare* en funció de la variable *Sex* amb una gràfica boxplot.
 
 ```{r}
 # Boxplot tarifa segons sexe
 ggplot(aes(y=Fare, x=Sex), data=titanic_df) + geom_boxplot()
 ```
 
-Veiem que, de mitjana, les dones paguen més que els homes. També veiem, però, que aquesta diferència sembla petita si tenim en compte la distribució total de la variable 'Fare' sobre els dos grups. La nostra prova doncs consistirà a determinar si la diferència de preus entre dones i homes és estadísticament significativa. D'acord amb les nostres observacions plantegem les següents hipòtesis nul·la i alternativa:  
+Veiem que, de mitjana, les dones paguen més que els homes. També veiem, però, que aquesta diferència sembla petita si tenim en compte la distribució total de la variable 'Fare' sobre els dos grups. La nostra prova doncs consistirà a determinar si la diferència de preus entre dones i homes és estadísticament significativa. D'acord amb les nostres observacions plantegem les següents hipòtesis nul·la i alternativa:
 
-H~0~ : 𝛍~fare_f~ = 𝛍~fare_m~  
+H~0~ : 𝛍~fare_f~ = 𝛍~fare_m~
 
-H~1~ : 𝛍~fare_f~ \> 𝛍~fare_m~  
+H~1~ : 𝛍~fare_f~ \> 𝛍~fare_m~
 
-* *Hipòtesi nul·la*: les mitjanes de preu entre homes i dones és igual  
-* *Hipòtesi alternativa*: les dones paguen un preu més alt que els homes  
+-   *Hipòtesi nul·la*: les mitjanes de preu entre homes i dones és igual\
+-   *Hipòtesi alternativa*: les dones paguen un preu més alt que els homes
 
+### 4.1.2 Comprovació de la normalitat i de la variància
 
-### 4.1.2 Comprovació de la normalitat i de la variància  
-
-**Comprovació de la normalitat**  
-En primer lloc farem una validació de la normalitat de la distribució de la variable *Fare*, tant visual amb una gràfica QQ-plot, com mitjançant el test estadístic de Shapiro-Wilk.  
+**Comprovació de la normalitat**\
+En primer lloc farem una validació de la normalitat de la distribució de la variable *Fare*, tant visual amb una gràfica QQ-plot, com mitjançant el test estadístic de Shapiro-Wilk.
 
 ```{r}
 # Comprovació visual amb QQ-plot
@@ -106,12 +104,12 @@ shapiro.test(titanic_df$Fare)
 
 ```
 
-La inspecció de la gràfica QQ-plot revela que la variable *Fare* no segueix la línia vermella que marca la distribució normal. El resultat del test de Shapiro-Wilk, en el que obtenim un p-value de l'ordre de $10^{-16}$ ens permet descartar la hipòtesi nul·la i arribar a la conclusió de que la variable *Fare* no segueix una distribució normal.  
+La inspecció de la gràfica QQ-plot revela que la variable *Fare* no segueix la línia vermella que marca la distribució normal. El resultat del test de Shapiro-Wilk, en el que obtenim un p-value de l'ordre de $10^{-16}$ ens permet descartar la hipòtesi nul·la i arribar a la conclusió de que la variable *Fare* no segueix una distribució normal.
 
-Malgrat el resultat de les proves i donat que farem tests sobre la mitjana, podem assumir segons el Teorema del Límit Central que la distribució de les mitjanes serà normal ja que disposem d'un nombre prou elevat de mostres.  
+Malgrat el resultat de les proves i donat que farem tests sobre la mitjana, podem assumir segons el Teorema del Límit Central que la distribució de les mitjanes serà normal ja que disposem d'un nombre prou elevat de mostres.
 
-**Comprovació de la variància**  
-Per tal de determinar el tipus de test estadístic a aplicar en aquest cas cal comprovar prèviament les variàncies de les dues distribucions. Dividirem les mostres de la variable *Fare* segons el valor de la variable *Sex* i aplicarem la funció *var.test()*.    
+**Comprovació de la variància**\
+Per tal de determinar el tipus de test estadístic a aplicar en aquest cas cal comprovar prèviament les variàncies de les dues distribucions. Dividirem les mostres de la variable *Fare* segons el valor de la variable *Sex* i aplicarem la funció *var.test()*.
 
 ```{r}
 # Les variàncies del preu en funció del sexe són iguals
@@ -121,72 +119,76 @@ var.test(fare_m,fare_f,conf.level = 0.95)
 
 ```
 
-El valor de p-value resultant, de l'ordre de $10^{-16}$, ens permet concloure que les dues variàncies són diferents amb un nivell de confiança del 95%. Donat que en aquest cas no es dona la condició d'homocedasticitat aplicarem un test sobre la mitjana de dues mostres independents, unilateral, amb variància desconeguda i diferent.  
+El valor de p-value resultant, de l'ordre de $10^{-16}$, ens permet concloure que les dues variàncies són diferents amb un nivell de confiança del 95%. Donat que en aquest cas no es dona la condició d'homocedasticitat aplicarem un test sobre la mitjana de dues mostres independents, unilateral, amb variància desconeguda i diferent.
 
 ```{r}
 # Aplicació de la funció t.test() per al test estadístic unilateral
 t.test(fare_f, fare_m, alternative = "greater", var.equal = FALSE)
 ```
 
-La prova estadística ens indica, amb un valor p per sota del nivell de significació, que podem rebutjar la hipòtesi nul·la. Per tant la conclusió és que la diferència de preu entre homes i dones és estadísticament significativa, i les dones paguen més que els homes.  
+La prova estadística ens indica, amb un valor p per sota del nivell de significació, que podem rebutjar la hipòtesi nul·la. Per tant la conclusió és que la diferència de preu entre homes i dones és estadísticament significativa, i les dones paguen més que els homes.
 
-Repetim la prova amb el test no paramètric de Wilcoxon, arribant a la mateixa conclusió:  
+Repetim la prova amb el test no paramètric de Wilcoxon, arribant a la mateixa conclusió:
 
 ```{r}
 # Aplicació de la funció wilcox.test() per al test estadístic unilateral
 wilcox.test(fare_f, fare_m, alternative = 'greater', conf.level=0.95)
 ```
 
-Després d'aplicar els dos tests, els valors de p-Value resultants ens permeten rebutjar la hipotesi nul·la i afirmar, amb un nivell de confiança del 95%, que en mitjana les dones paguen més pel bitllet que els homes.  
+Després d'aplicar els dos tests, els valors de p-Value resultants ens permeten rebutjar la hipotesi nul·la i afirmar, amb un nivell de confiança del 95%, que en mitjana les dones paguen més pel bitllet que els homes.
 
-Aquesta anàlisi no ha tingut en compte la classe en la que viatgen els passatgers, per tant caldria veure si aquest resultat és degut a que les dones viatgen, majoritariament, a primera i segona classe.  
+Aquesta anàlisi no ha tingut en compte la classe en la que viatgen els passatgers, per tant caldria veure si aquest resultat és degut a que les dones viatgen, majoritariament, a primera i segona classe.
 
-### 4.1.3 Aplicació de les proves estadístiques adients  
-Donat que en aquest cas no es dona la condició d'homocedasticitat aplicarem un test sobre la mitjana de dues mostres independents, unilateral, amb variància desconeguda i diferent.  
+### 4.1.3 Aplicació de les proves estadístiques adients
+
+Donat que en aquest cas no es dona la condició d'homocedasticitat aplicarem un test sobre la mitjana de dues mostres independents, unilateral, amb variància desconeguda i diferent.
 
 ```{r}
 # Aplicació de la funció t.test() per al test estadístic unilateral
 t.test(fare_f, fare_m, alternative = "greater", var.equal = FALSE)
 ```
 
-La prova estadística ens indica, amb un valor p per sota del nivell de significació, que podem rebutjar la hipòtesi nul·la. Per tant la conclusió és que la diferència de preu entre homes i dones és estadísticament significativa, i les dones paguen més que els homes.  
+La prova estadística ens indica, amb un valor p per sota del nivell de significació, que podem rebutjar la hipòtesi nul·la. Per tant la conclusió és que la diferència de preu entre homes i dones és estadísticament significativa, i les dones paguen més que els homes.
 
-Repetim la prova amb el test no paramètric de Wilcoxon, arribant a la mateixa conclusió:  
+Repetim la prova amb el test no paramètric de Wilcoxon, arribant a la mateixa conclusió:
 
 ```{r}
 # Aplicació de la funció wilcox.test() per al test estadístic unilateral
 wilcox.test(fare_f, fare_m, alternative = 'greater', conf.level=0.95)
 ```
 
-Després d'aplicar els dos tests, els valors de p-Value resultants ens permeten rebutjar la hipotesi nul·la i afirmar, amb un nivell de confiança del 95%, que en mitjana les dones paguen més pel bitllet que els homes.  
+Després d'aplicar els dos tests, els valors de p-Value resultants ens permeten rebutjar la hipotesi nul·la i afirmar, amb un nivell de confiança del 95%, que en mitjana les dones paguen més pel bitllet que els homes.
 
-Aquesta anàlisi no ha tingut en compte la classe en la que viatgen els passatgers, per tant caldria veure si aquest resultat és degut a que les dones viatgen, majoritariament, a primera i segona classe.  
+Aquesta anàlisi no ha tingut en compte la classe en la que viatgen els passatgers, per tant caldria veure si aquest resultat és degut a que les dones viatgen, majoritariament, a primera i segona classe.
 
-## 4.2 Prova 2. Relació entre el port d'embarcament i la classe.  
-En aquesta provem volem comprovar si hi ha algun tipus de relació entre el port d'embarcament i la classe en la que viatgen els passatgers que hi embarquen.   
+## 4.2 Prova 2. Relació entre el port d'embarcament i la classe.
 
-### 4.2.1 Selecció dels grups de dades a analitzar/comparar  
-En aquest cas farem l'anàlisi de dues variables categòriques *Embarked* i *PClass* per tant caldrà aplicar un test Chi-squared.  
+En aquesta provem volem comprovar si hi ha algun tipus de relació entre el port d'embarcament i la classe en la que viatgen els passatgers que hi embarquen.
 
-A la taula següent visualitzarem quants atributs hi ha per a cada combinació de port d'embarcament i classe.  
+### 4.2.1 Selecció dels grups de dades a analitzar/comparar
+
+En aquest cas farem l'anàlisi de dues variables categòriques *Embarked* i *PClass* per tant caldrà aplicar un test Chi-squared.
+
+A la taula següent visualitzarem quants atributs hi ha per a cada combinació de port d'embarcament i classe.
 
 ```{r}
 
 table(titanic_df$Pclass, titanic_df$Embarked)
 ```
 
-Sembla que el port d'embarcament influeix sobre la classe del passatger. Veiem, per exemple, que al port de Queenstown hi embarquen majoritàriament passatgers de tercera classe, mentre que a Cherbourg són més nombrosos els passatgers de primera classe. D'acord amb aquesta observació plantegem les següents hipòtesis nul·la i alternativa:  
+Sembla que el port d'embarcament influeix sobre la classe del passatger. Veiem, per exemple, que al port de Queenstown hi embarquen majoritàriament passatgers de tercera classe, mentre que a Cherbourg són més nombrosos els passatgers de primera classe. D'acord amb aquesta observació plantegem les següents hipòtesis nul·la i alternativa:
 
-H~0~: Les variables 'PClass' i 'Embarked' són independents  
+H~0~: Les variables 'PClass' i 'Embarked' són independents
 
-H~1~: Hi ha relació entre les variables 'PClass' i 'Embarked'  
+H~1~: Hi ha relació entre les variables 'PClass' i 'Embarked'
 
+### 4.2.2 Comprovació de la normalitat i de la variància
 
-### 4.2.2 Comprovació de la normalitat i de la variància  
-En aquest cas no aplica aquest apartat en tractar-se d'un test Chi-squared sobre dues variables categòriques.  
+En aquest cas no aplica aquest apartat en tractar-se d'un test Chi-squared sobre dues variables categòriques.
 
-### 4.2.3 Aplicació de les proves estadístiques adients  
-intro...  
+### 4.2.3 Aplicació de les proves estadístiques adients
+
+intro...
 
 ```{r}
 # Realització del test Chi-squared
@@ -196,10 +198,11 @@ cs
 cs$expected
 ```
 
-Els resultats del test de chi quadrat confirmen les nostres sospites. Rebutgem la hipòtesi nul·la i acceptem la dependència de les dues variables amb un valor p \< 0.01  
+Els resultats del test de chi quadrat confirmen les nostres sospites. Rebutgem la hipòtesi nul·la i acceptem la dependència de les dues variables amb un valor p \< 0.01
 
-## 4.3 Prova 3. Mitjana d'edat dels passatgers a cadascuna de les classes.  
-En aquest cas el nostre objectiu és comparar la mitjana d'edat dels passatgers del Titanic en funció de la classe en la que viatjaven i comprovar si hi ha diferències entre elles. Ja que es tracta d'una comparació de mitjanes entre més de dos grups de dades (al Titanic hi havia tres classes diferents) procedirem a aplicar un test d'ANOVA.  
+## 4.3 Prova 3. Mitjana d'edat dels passatgers a cadascuna de les classes.
+
+En aquest cas el nostre objectiu és comparar la mitjana d'edat dels passatgers del Titanic en funció de la classe en la que viatjaven i comprovar si hi ha diferències entre elles. Ja que es tracta d'una comparació de mitjanes entre més de dos grups de dades (al Titanic hi havia tres classes diferents) procedirem a aplicar un test d'ANOVA.
 
 Tal i com hem fet a la *Prova 1* el primer pas serà comprovar les distribucions de la variable *Age* en funció de la variable *Pclass* amb gràfiques de tipus boxplot.
 
@@ -207,20 +210,21 @@ Tal i com hem fet a la *Prova 1* el primer pas serà comprovar les distribucions
 ggplot(aes(y=Age, x=Pclass), data=titanic_df) + geom_boxplot()
 ```
 
-A les gràfiques observem que a primera classe la mitjana d'edat dels viatgers és més elevada que a segona i tercera, i que la caixa que representa l'IQR està més elevada, el que indica que l'edat dels passatgers a primera és major que a les altres dues. A partir de la gràfica es pot concloure que hi havia viatgers de més edat a primera classe i, per altra banda, hi havia viatgers més joves a tercera classe, quedant la segona classe en un intermig.  
+A les gràfiques observem que a primera classe la mitjana d'edat dels viatgers és més elevada que a segona i tercera, i que la caixa que representa l'IQR està més elevada, el que indica que l'edat dels passatgers a primera és major que a les altres dues. A partir de la gràfica es pot concloure que hi havia viatgers de més edat a primera classe i, per altra banda, hi havia viatgers més joves a tercera classe, quedant la segona classe en un intermig.
 
-### 4.3.1 Selecció dels grups de dades a analitzar/comparar  
-En aquest cas farem una anàlisi de la variable numèrica *Age* respecte la variable categòrica *Pclass*. Volem fer una prova de contrast d'hipòtesis en la que ens plantegem si en mitjana l'edat dels passatgers és la mateixa a totes les classes.  
+### 4.3.1 Selecció dels grups de dades a analitzar/comparar
 
-Abans de començar a plantejar el test estadístic visualitzarem les diferències en la distribució de la variable *Age* en funció de la variable *Pclass* amb una gràfica boxplot. D'acord amb les nostres observacions plantegem les següents hipòtesis nul·la i alternativa:  
+En aquest cas farem una anàlisi de la variable numèrica *Age* respecte la variable categòrica *Pclass*. Volem fer una prova de contrast d'hipòtesis en la que ens plantegem si en mitjana l'edat dels passatgers és la mateixa a totes les classes.
 
-Hipòtesi nul·la: la mitjana d'edat a totes les classes és la mateixa.  
-Hipòtesi alternativa: les mitjanes d'edat són diferents a cada classe.  
+Abans de començar a plantejar el test estadístic visualitzarem les diferències en la distribució de la variable *Age* en funció de la variable *Pclass* amb una gràfica boxplot. D'acord amb les nostres observacions plantegem les següents hipòtesis nul·la i alternativa:
 
-### 4.3.2 Comprovació de la normalitat i de la variància  
+Hipòtesi nul·la: la mitjana d'edat a totes les classes és la mateixa.\
+Hipòtesi alternativa: les mitjanes d'edat són diferents a cada classe.
 
-**Comprovació de la normalitat**  
-En primer lloc farem una validació de la normalitat de la distribució de la variable *Fare*, tant visual amb una gràfica QQ-plot, com mitjançant el test estadístic de Shapiro-Wilk.  
+### 4.3.2 Comprovació de la normalitat i de la variància
+
+**Comprovació de la normalitat**\
+En primer lloc farem una validació de la normalitat de la distribució de la variable *Fare*, tant visual amb una gràfica QQ-plot, com mitjançant el test estadístic de Shapiro-Wilk.
 
 ```{r}
 # Comprovació visual amb QQ-plot
@@ -232,12 +236,12 @@ shapiro.test(titanic_df$Age)
 
 ```
 
-La inspecció de la gràfica QQ-plot revela que la variable *Age* no segueix la línia vermella que marca la distribució normal, especialment als extrems de l'eix dabscisses. El resultat del test de Shapiro-Wilk, en el que obtenim un p-value de l'ordre de $10^{-15}$ ens permet descartar la hipòtesi nul·la i arribar a la conclusió de que la variable *Age* no segueix una distribució normal.  
+La inspecció de la gràfica QQ-plot revela que la variable *Age* no segueix la línia vermella que marca la distribució normal, especialment als extrems de l'eix dabscisses. El resultat del test de Shapiro-Wilk, en el que obtenim un p-value de l'ordre de $10^{-15}$ ens permet descartar la hipòtesi nul·la i arribar a la conclusió de que la variable *Age* no segueix una distribució normal.
 
-Malgrat el resultat de les proves i donat que farem tests sobre les mitjanes, podem assumir segons el Teorema del Límit Central que la distribució de les mitjanes serà normal ja que disposem d'un nombre prou elevat de mostres.  
+Malgrat el resultat de les proves i donat que farem tests sobre les mitjanes, podem assumir segons el Teorema del Límit Central que la distribució de les mitjanes serà normal ja que disposem d'un nombre prou elevat de mostres.
 
-**Comprovació de la variància**  
-Per tal de determinar el tipus de test estadístic a aplicar en aquest cas cal comprovar prèviament les variàncies de les distribucions de la variable *Age* en funció de la classe (variable *Pclass*).  
+**Comprovació de la variància**\
+Per tal de determinar el tipus de test estadístic a aplicar en aquest cas cal comprovar prèviament les variàncies de les distribucions de la variable *Age* en funció de la classe (variable *Pclass*).
 
 ```{r}
 # H0: Les variàncies de l'edat en funció de la classe són iguals
@@ -247,8 +251,9 @@ Per tal de determinar el tipus de test estadístic a aplicar en aquest cas cal c
 
 El valor de p-value resultant, inferior al nivell de significança, ens permet concloure que les variàncies de la variable *Age* entre les diferents classes són diferents amb un nivell de confiança del 95%.
 
-### 4.3.3 Aplicació de les proves estadístiques adients  
-Donat que en aquest cas no es dona la condició d'homocedasticitat cal aplicar la prova no paramètrica de Kruskal-Wallis per a comprovar la validesa de la hipòtesi nul·la.  
+### 4.3.3 Aplicació de les proves estadístiques adients
+
+Donat que en aquest cas no es dona la condició d'homocedasticitat cal aplicar la prova no paramètrica de Kruskal-Wallis per a comprovar la validesa de la hipòtesi nul·la.
 
 ```{r}
 # Test no paramètric per a la comparació de més de dos grups
@@ -256,12 +261,12 @@ Donat que en aquest cas no es dona la condició d'homocedasticitat cal aplicar l
 
 ```
 
+# 5. Representació gràfica dels resultats
 
+Al llarg d'aquest document s'han anat presentant les gràfiques necessàries per a la interpretació dels resultats obtinguts, així com per a la visualització de les distribucions de les variables a analitzar.
 
-# 5. Representació gràfica dels resultats  
-Al llarg d'aquest document s'han anat presentant les gràfiques necessàries per a la interpretació dels resultats obtinguts, així com per a la visualització de les distribucions de les variables a analitzar.  
+# 6. Conclusions
 
-# 6. Conclusions  
+# 7. Codi font per a la resolució de la pràctica
 
-# 7. Codi font per a la resolució de la pràctica  
 El present document HTML ha estat generat amb RStudio a partir d'un fitxer Rmd (R-markdown) que conté el codi necessari per al desenvolupament de la pràctica plantejada. Podeu consultar el fitxer Rmd amb el codi font en aquest mateix repositori.

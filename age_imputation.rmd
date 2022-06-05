@@ -439,7 +439,7 @@ Donem un nou nom al dataset amb totes les correccions fetes, i l'exportem a un f
 
 ```{r}
 titanic1 <- titan
-write.csv(titanic1, "data/titanic.csv", row.names = FALSE)
+write.csv(titanic1, "data/titanic1.csv", row.names = FALSE)
 ```
 
 \
