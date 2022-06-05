@@ -216,15 +216,19 @@ shapiro.test(titanic1$Age)
 
 La inspecció de la gràfica QQ-plot revela que la variable *Age* no segueix la línia vermella que marca la distribució normal, especialment als extrems de l'eix dabscisses. El resultat del test de Shapiro-Wilk, en el que obtenim un p-value de l'ordre de $10^{-15}$ ens permet descartar la hipòtesi nul·la i arribar a la conclusió de que la variable *Age* no segueix una distribució normal.
 
-Malgrat el resultat de les proves i donat que farem tests sobre les mitjanes, podem assumir segons el Teorema del Límit Central que la distribució de les mitjanes serà normal ja que disposem d'un nombre prou elevat de mostres.
+Tenint present aquesta manca de normalitat de la variable Age, crearem tanmateix un model ANOVA d'un sol factor (Pclass) sobre la variable, i un cop generat el model veurem si els residus del model també es desvien de la normal, i si cal fer llavors aplicar un test no paramètric.
 
 ### 4.3.3 Aplicació de les proves estadístiques adients
+
+Generem un model linear i apliquem l'ANOVA d'un sol factor (amb tres nivells):
 
 ```{r}
 resultat <- lm(Age~Pclass, data = titanic1)
 table_1 <- anova(resultat)
 table_1
 ```
+
+Veiem que, efectivament, amb un nivell de significació amb valor p \< 0.001, el model troba diferències significatives entre les mitjanes d'edats dels tres grups classe.
 
 La variabilitat explicada de la variable Pclass sobre la variable Age seria d'un 21%:
 
@@ -243,6 +247,8 @@ model.tables(resultat_2, type='effects')
 ```
 
 <br>
+
+Aplicarem un segon test que confirma els resultats:
 
 ```{r}
 library(stats)
