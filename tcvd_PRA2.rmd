@@ -606,6 +606,8 @@ write.csv(titanic1, "titanic1.csv", row.names = FALSE)
 \
 <br>
 
+<br>
+
 # 4. Anàlisi de les dades
 
 En aquesta secció farem l'anàlisi de les dades sota estudi. En concret estem interessats en els següents aspectes:
@@ -619,6 +621,8 @@ En aquesta secció farem l'anàlisi de les dades sota estudi. En concret estem i
 ## 4.1 Prova 1. Diferència de tarifa en funció del gènere del passatger.
 
 En aquesta prova volem comprovar si hi ha diferències en la quantitat mitjana que han pagat homes i dones per a embarcar.
+
+<br>
 
 ### 4.1.1 Selecció dels grups de dades a analitzar/comparar
 
@@ -640,6 +644,8 @@ H~1~ : 𝛍~fare_f~ \> 𝛍~fare_m~
 -   *Hipòtesi nul·la*: les mitjanes de preu entre homes i dones és igual\
 -   *Hipòtesi alternativa*: les dones paguen un preu més alt que els homes
 
+<br>
+
 ### 4.1.2 Comprovació de la normalitat i de la variància
 
 **Comprovació de la normalitat**\
@@ -659,6 +665,8 @@ La inspecció de la gràfica QQ-plot revela que la variable *Fare* no segueix la
 
 Malgrat el resultat de les proves i donat que farem tests sobre la mitjana, podem assumir segons el Teorema del Límit Central que la distribució de les mitjanes serà normal ja que disposem d'un nombre prou elevat de mostres.
 
+<br>
+
 **Comprovació de la variància**\
 Per tal de determinar el tipus de test estadístic a aplicar en aquest cas cal comprovar prèviament les variàncies de les dues distribucions. Dividirem les mostres de la variable *Fare* segons el valor de la variable *Sex* i aplicarem la funció *var.test()*.
 
@@ -671,6 +679,8 @@ var.test(fare_m,fare_f,conf.level = 0.95)
 ```
 
 El valor de p-value resultant, de l'ordre de $10^{-16}$, ens permet concloure que les dues variàncies són diferents amb un nivell de confiança del 95%. Donat que en aquest cas no es dona la condició d'homocedasticitat aplicarem un test sobre la mitjana de dues mostres independents, unilateral, amb variància desconeguda i diferent.
+
+<br>
 
 ### 4.1.3 Aplicació de les proves estadístiques adients
 
@@ -694,9 +704,13 @@ Després d'aplicar els dos tests, els valors de p-Value resultants ens permeten 
 
 Aquesta anàlisi no ha tingut en compte la classe en la que viatgen els passatgers, per tant caldria veure si aquest resultat és degut a que les dones viatgen, majoritàriament, a primera i segona classe.
 
+<br>
+
 ## 4.2 Prova 2. Relació entre el port d'embarcament i la classe.
 
 En aquesta provem volem comprovar si hi ha algun tipus de relació entre el port d'embarcament i la classe en la que viatgen els passatgers que hi embarquen.
+
+<br>
 
 ### 4.2.1 Selecció dels grups de dades a analitzar/comparar
 
@@ -715,13 +729,21 @@ H~0~: Les variables 'PClass' i 'Embarked' són independents
 
 H~1~: Hi ha relació entre les variables 'PClass' i 'Embarked'
 
+<br>
+
 ### 4.2.2 Comprovació de la normalitat i de la variància
 
 En aquest cas no aplica aquest apartat en tractar-se d'un test Chi-squared sobre dues variables categòriques.
 
+<br>
+
 ### 4.2.3 Aplicació de les proves estadístiques adients
 
-intro...
+H~0~: Les variables 'PClass' i 'Embarked' són independents
+
+H~1~: Hi ha relació entre les variables 'PClass' i 'Embarked'
+
+Sembla que el port d'embarcament influeix sobre la classe del passatger. Veiem, per exemple, que al port de Queenstown hi embarquen majoritàriament passatgers de tercera classe, mentre que a Cherbourg són més nombrosos els passatgers de primera classe.
 
 ```{r}
 # Realització del test Chi-squared
@@ -745,7 +767,9 @@ Tal i com hem fet a la *Prova 1* el primer pas serà comprovar les distribucions
 ggplot(aes(y=Age, x=Pclass), data=titanic1) + geom_boxplot()
 ```
 
-A les gràfiques observem que a primera classe la mitjana d'edat dels viatgers és més elevada que a segona i tercera, i que la caixa que representa l'IQR està més elevada, el que indica que l'edat dels passatgers a primera és major que a les altres dues. A partir de la gràfica es pot concloure que hi havia viatgers de més edat a primera classe i, per altra banda, hi havia viatgers més joves a tercera classe, quedant la segona classe en un intermig.
+A les gràfiques observem que a primera classe la mitjana d'edat dels viatgers és més elevada que a segona i tercera, i que la caixa que representa l'IQR està més elevada, el que indica que l'edat dels passatgers a primera és major que a les altres dues. A partir de la gràfica es pot concloure que hi havia viatgers de més edat a primera classe i, per altra banda, hi havia viatgers més joves a tercera classe, quedant la segona classe en un intermedi.
+
+<br>
 
 ### 4.3.1 Selecció dels grups de dades a analitzar/comparar
 
@@ -755,6 +779,8 @@ D'acord amb les nostres observacions plantegem les següents hipòtesis nul·la 
 
 Hipòtesi nul·la: la mitjana d'edat a totes les classes és la mateixa.\
 Hipòtesi alternativa: les mitjanes d'edat són diferents a cada classe.
+
+<br>
 
 ### 4.3.2 Comprovació de la normalitat i de la variància
 
@@ -774,6 +800,8 @@ shapiro.test(titanic1$Age)
 La inspecció de la gràfica QQ-plot revela que la variable *Age* no segueix la línia vermella que marca la distribució normal, especialment als extrems de l'eix dabscisses. El resultat del test de Shapiro-Wilk, en el que obtenim un p-value de l'ordre de $10^{-15}$ ens permet descartar la hipòtesi nul·la i arribar a la conclusió de que la variable *Age* no segueix una distribució normal.
 
 Tenint present aquesta manca de normalitat de la variable Age, crearem tanmateix un model ANOVA d'un sol factor (Pclass) sobre la variable, i un cop generat el model veurem si els residus del model també es desvien de la normal, i si cal fer llavors aplicar un test no paramètric.
+
+<br>
 
 ### 4.3.3 Aplicació de les proves estadístiques adients
 
@@ -846,6 +874,8 @@ kruskal.test(Age~Pclass, data = titanic1)
 
 Al llarg d'aquest document s'han anat presentant les gràfiques necessàries per a la interpretació dels resultats obtinguts, així com per a la visualització de les distribucions de les variables a analitzar.
 
+<br>
+
 # 6. Conclusions
 
 El nostre estudi s'ha centrat en diverses de les variables contingudes en el dataset Titanic. Hem plantejat un estudi que deixa de banda el naufragi del Titanic, i hem aprofitat les diferents dades de caire demogràfic, social i econòmic per tal d'inverstigar la relació entre factors com l'edat dels passatgers, els preu del bitllet, la classe en què viatjaven i el port on van embarcar. D'alguna manera, podem considerar el grup de passatgers del Titanic com una mostra representativa de la població que migrava d'Europa a Estats Units a principis del segle XX. Les nostres conclusions en aquest sentit han de ser necessàriament provisionals i temptatives, tenint en compte que el Titanic no era un vaixell qualsevol, sinó precisament el més gran i modern que havia existit mai fins aquell moment. Tanmateix, si imaginem un estudi més ampli, on poguéssim accedir al mateix tipus de dades per altres vaixells de l'època, podem plantejar que el mateix tipus de relacions entre variables que hem presentat en aquest estudi ens podrien ajudar a fer comparacions i construir una imatge històrica, basada en l'anàlisi de dades, dels factors demogràfics i econòmics representatius d'aquest tipus concret de fenomen migratori de principis del segle XX.
@@ -859,3 +889,7 @@ Un cop netejades les dades, en la nostra investigació hem pogut constatar relac
 # 7. Codi font per a la resolució de la pràctica
 
 El present document HTML ha estat generat amb RStudio a partir d'un fitxer Rmd (R-markdown) que conté el codi necessari per al desenvolupament de la pràctica plantejada. Podeu consultar el fitxer Rmd amb el codi font en aquest mateix repositori.
+
+<br>\
+<br>\
+<br>
