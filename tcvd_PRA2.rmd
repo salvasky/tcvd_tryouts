@@ -580,6 +580,32 @@ summary(titan)
 
 <br>
 
+```{r}
+boxplot(titan$Fare)
+```
+
+<br>
+
+Veiem que hi ha 4 passatgers que paguen un preu molts més alt que la resta. Si examinem la resta dels valors, creiem que no es tracta de valors erronis:
+
+```{r}
+titan[titan$Fare > 400,]
+```
+
+<br>
+
+<br>
+
+Donem un nou nom al dataset amb totes les correccions fetes, i l'exportem a un fitxer csv:
+
+```{r}
+titanic1 <- titan
+write.csv(titanic1, "titanic1.csv", row.names = FALSE)
+```
+
+\
+<br>
+
 # 4. Anàlisi de les dades
 
 En aquesta secció farem l'anàlisi de les dades sota estudi. En concret estem interessats en els següents aspectes:
@@ -700,9 +726,9 @@ intro...
 ```{r}
 # Realització del test Chi-squared
 cs <- chisq.test(titanic1$Pclass, titanic1$Embarked)
-cs
 #Comprovem que el valor esperat de les cel·les sigui superior a 5 en el 80% dels casos:
 cs$expected
+cs
 ```
 
 Els resultats del test de chi quadrat confirmen les nostres sospites. Rebutgem la hipòtesi nul·la i acceptem la dependència de les dues variables amb un valor p \< 0.01
