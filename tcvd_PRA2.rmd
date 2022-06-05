@@ -891,5 +891,13 @@ Un cop netejades les dades, en la nostra investigació hem pogut constatar relac
 El present document HTML ha estat generat amb RStudio a partir d'un fitxer Rmd (R-markdown) que conté el codi necessari per al desenvolupament de la pràctica plantejada. Podeu consultar el fitxer Rmd amb el codi font en aquest mateix repositori.
 
 <br>\
-<br>\
+<br>
+
+| Contribucions             | Firma                                              |
+|---------------------------|----------------------------------------------------|
+| Investigació prèvia       | Salvador Sanchis Beneseit i Joan Manuel Lopez Ruiz |
+| Redacció de les respostes | Salvador Sanchis Beneseit i Joan Manuel Lopez Ruiz |
+| Desenvolupament codi      | Salvador Sanchis Beneseit i Joan Manuel Lopez Ruiz |
+
+\
 <br>
