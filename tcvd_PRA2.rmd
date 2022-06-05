@@ -54,16 +54,10 @@ A nosaltres, en canvi, ens interessa aquest dataset per fer un estudi d'interès
 En aquesta secció farem l'anàlisi de les dades sota estudi. En concret estem interessats en els següents aspectes:
 
 -   Diferència de tarifa en funció del gènere del passatger.\
+
 -   Relació entre el port d'embarcament i la classe.\
+
 -   Mitjana d'edat dels passatgers a cadascuna de les classes.
-
-Abans de començar, però, cal carregar les dades del csv preparat.
-
-```{r}
-# Lectura del fitxer csv preprocessat
-titanic_df <- read.csv("data/titanic1.csv")
-
-```
 
 ## 4.1 Prova 1. Diferència de tarifa en funció del gènere del passatger.
 
@@ -77,7 +71,7 @@ Abans de començar a plantejar el test estadístic visualitzarem les diferèncie
 
 ```{r}
 # Boxplot tarifa segons sexe
-ggplot(aes(y=Fare, x=Sex), data=titanic_df) + geom_boxplot()
+ggplot(aes(y=Fare, x=Sex), data=titanic1) + geom_boxplot()
 ```
 
 Veiem que, de mitjana, les dones paguen més que els homes. També veiem, però, que aquesta diferència sembla petita si tenim en compte la distribució total de la variable 'Fare' sobre els dos grups. La nostra prova doncs consistirà a determinar si la diferència de preus entre dones i homes és estadísticament significativa. D'acord amb les nostres observacions plantegem les següents hipòtesis nul·la i alternativa:
@@ -96,11 +90,11 @@ En primer lloc farem una validació de la normalitat de la distribució de la va
 
 ```{r}
 # Comprovació visual amb QQ-plot
-qqnorm(titanic_df$Fare)
-qqline(titanic_df$Fare, col='red')
+qqnorm(titanic1$Fare)
+qqline(titanic1$Fare, col='red')
 
 # Test de Shapiro-Wilk
-shapiro.test(titanic_df$Fare)
+shapiro.test(titanic1$Fare)
 
 ```
 
@@ -113,31 +107,13 @@ Per tal de determinar el tipus de test estadístic a aplicar en aquest cas cal c
 
 ```{r}
 # Les variàncies del preu en funció del sexe són iguals
-fare_m <- titanic_df[titanic_df$Sex == 'male',]$Fare
-fare_f <- titanic_df[titanic_df$Sex == 'female',]$Fare
+fare_m <- titanic1[titanic1$Sex == 'male',]$Fare
+fare_f <- titanic1[titanic1$Sex == 'female',]$Fare
 var.test(fare_m,fare_f,conf.level = 0.95)
 
 ```
 
 El valor de p-value resultant, de l'ordre de $10^{-16}$, ens permet concloure que les dues variàncies són diferents amb un nivell de confiança del 95%. Donat que en aquest cas no es dona la condició d'homocedasticitat aplicarem un test sobre la mitjana de dues mostres independents, unilateral, amb variància desconeguda i diferent.
-
-```{r}
-# Aplicació de la funció t.test() per al test estadístic unilateral
-t.test(fare_f, fare_m, alternative = "greater", var.equal = FALSE)
-```
-
-La prova estadística ens indica, amb un valor p per sota del nivell de significació, que podem rebutjar la hipòtesi nul·la. Per tant la conclusió és que la diferència de preu entre homes i dones és estadísticament significativa, i les dones paguen més que els homes.
-
-Repetim la prova amb el test no paramètric de Wilcoxon, arribant a la mateixa conclusió:
-
-```{r}
-# Aplicació de la funció wilcox.test() per al test estadístic unilateral
-wilcox.test(fare_f, fare_m, alternative = 'greater', conf.level=0.95)
-```
-
-Després d'aplicar els dos tests, els valors de p-Value resultants ens permeten rebutjar la hipotesi nul·la i afirmar, amb un nivell de confiança del 95%, que en mitjana les dones paguen més pel bitllet que els homes.
-
-Aquesta anàlisi no ha tingut en compte la classe en la que viatgen els passatgers, per tant caldria veure si aquest resultat és degut a que les dones viatgen, majoritariament, a primera i segona classe.
 
 ### 4.1.3 Aplicació de les proves estadístiques adients
 
@@ -159,7 +135,7 @@ wilcox.test(fare_f, fare_m, alternative = 'greater', conf.level=0.95)
 
 Després d'aplicar els dos tests, els valors de p-Value resultants ens permeten rebutjar la hipotesi nul·la i afirmar, amb un nivell de confiança del 95%, que en mitjana les dones paguen més pel bitllet que els homes.
 
-Aquesta anàlisi no ha tingut en compte la classe en la que viatgen els passatgers, per tant caldria veure si aquest resultat és degut a que les dones viatgen, majoritariament, a primera i segona classe.
+Aquesta anàlisi no ha tingut en compte la classe en la que viatgen els passatgers, per tant caldria veure si aquest resultat és degut a que les dones viatgen, majoritàriament, a primera i segona classe.
 
 ## 4.2 Prova 2. Relació entre el port d'embarcament i la classe.
 
@@ -173,7 +149,7 @@ A la taula següent visualitzarem quants atributs hi ha per a cada combinació d
 
 ```{r}
 
-table(titanic_df$Pclass, titanic_df$Embarked)
+table(titanic1$Pclass, titanic1$Embarked)
 ```
 
 Sembla que el port d'embarcament influeix sobre la classe del passatger. Veiem, per exemple, que al port de Queenstown hi embarquen majoritàriament passatgers de tercera classe, mentre que a Cherbourg són més nombrosos els passatgers de primera classe. D'acord amb aquesta observació plantegem les següents hipòtesis nul·la i alternativa:
@@ -192,13 +168,15 @@ intro...
 
 ```{r}
 # Realització del test Chi-squared
-cs <- chisq.test(titanic_df$Pclass, titanic_df$Embarked)
+cs <- chisq.test(titanic1$Pclass, titanic1$Embarked)
 cs
 #Comprovem que el valor esperat de les cel·les sigui superior a 5 en el 80% dels casos:
 cs$expected
 ```
 
 Els resultats del test de chi quadrat confirmen les nostres sospites. Rebutgem la hipòtesi nul·la i acceptem la dependència de les dues variables amb un valor p \< 0.01
+
+<br>
 
 ## 4.3 Prova 3. Mitjana d'edat dels passatgers a cadascuna de les classes.
 
@@ -207,7 +185,7 @@ En aquest cas el nostre objectiu és comparar la mitjana d'edat dels passatgers 
 Tal i com hem fet a la *Prova 1* el primer pas serà comprovar les distribucions de la variable *Age* en funció de la variable *Pclass* amb gràfiques de tipus boxplot.
 
 ```{r}
-ggplot(aes(y=Age, x=Pclass), data=titanic_df) + geom_boxplot()
+ggplot(aes(y=Age, x=Pclass), data=titanic1) + geom_boxplot()
 ```
 
 A les gràfiques observem que a primera classe la mitjana d'edat dels viatgers és més elevada que a segona i tercera, i que la caixa que representa l'IQR està més elevada, el que indica que l'edat dels passatgers a primera és major que a les altres dues. A partir de la gràfica es pot concloure que hi havia viatgers de més edat a primera classe i, per altra banda, hi havia viatgers més joves a tercera classe, quedant la segona classe en un intermig.
@@ -216,7 +194,7 @@ A les gràfiques observem que a primera classe la mitjana d'edat dels viatgers �
 
 En aquest cas farem una anàlisi de la variable numèrica *Age* respecte la variable categòrica *Pclass*. Volem fer una prova de contrast d'hipòtesis en la que ens plantegem si en mitjana l'edat dels passatgers és la mateixa a totes les classes.
 
-Abans de començar a plantejar el test estadístic visualitzarem les diferències en la distribució de la variable *Age* en funció de la variable *Pclass* amb una gràfica boxplot. D'acord amb les nostres observacions plantegem les següents hipòtesis nul·la i alternativa:
+D'acord amb les nostres observacions plantegem les següents hipòtesis nul·la i alternativa:
 
 Hipòtesi nul·la: la mitjana d'edat a totes les classes és la mateixa.\
 Hipòtesi alternativa: les mitjanes d'edat són diferents a cada classe.
@@ -228,11 +206,11 @@ En primer lloc farem una validació de la normalitat de la distribució de la va
 
 ```{r}
 # Comprovació visual amb QQ-plot
-qqnorm(titanic_df$Age)
-qqline(titanic_df$Age, col='red')
+qqnorm(titanic1$Age)
+qqline(titanic1$Age, col='red')
 
 # Test de Shapiro-Wilk
-shapiro.test(titanic_df$Age)
+shapiro.test(titanic1$Age)
 
 ```
 
@@ -240,26 +218,58 @@ La inspecció de la gràfica QQ-plot revela que la variable *Age* no segueix la 
 
 Malgrat el resultat de les proves i donat que farem tests sobre les mitjanes, podem assumir segons el Teorema del Límit Central que la distribució de les mitjanes serà normal ja que disposem d'un nombre prou elevat de mostres.
 
-**Comprovació de la variància**\
-Per tal de determinar el tipus de test estadístic a aplicar en aquest cas cal comprovar prèviament les variàncies de les distribucions de la variable *Age* en funció de la classe (variable *Pclass*).
-
-```{r}
-# H0: Les variàncies de l'edat en funció de la classe són iguals
-#var.test(Age ~ Pclass, data=titanic_df, conf.level = 0.95)
-
-```
-
-El valor de p-value resultant, inferior al nivell de significança, ens permet concloure que les variàncies de la variable *Age* entre les diferents classes són diferents amb un nivell de confiança del 95%.
-
 ### 4.3.3 Aplicació de les proves estadístiques adients
 
-Donat que en aquest cas no es dona la condició d'homocedasticitat cal aplicar la prova no paramètrica de Kruskal-Wallis per a comprovar la validesa de la hipòtesi nul·la.
+```{r}
+resultat <- lm(Age~Pclass, data = titanic1)
+table_1 <- anova(resultat)
+table_1
+```
+
+La variabilitat explicada de la variable Pclass sobre la variable Age seria d'un 21%:
 
 ```{r}
-# Test no paramètric per a la comparació de més de dos grups
-#kruskal.test(Age ~ Pclass, data=titanic_df, conf.level=0.95)
-
+variabilitat <- 49907/(49907+186560)
+variabilitat
 ```
+
+<br>
+
+Si calculem els efectes de cada factor separadament, veiem que sobretot el factor 1a classe contribueix a l'augment d'edat, mentre que el factor 3a classe fa el contrari:
+
+```{r}
+resultat_2 <- aov(Age~Pclass, data = titanic1)
+model.tables(resultat_2, type='effects')
+```
+
+<br>
+
+```{r}
+library(stats)
+pairwise.t.test(titanic1$Age, titanic1$Pclass, p.adj='bonferroni')
+```
+
+<br>
+
+```{r}
+plot(resultat, which = 1)
+```
+
+<br>
+
+```{r}
+plot(resultat, which = 2)
+```
+
+<br>
+
+```{r}
+kruskal.test(Age~Pclass, data = titanic1)
+```
+
+<br>
+
+<br>
 
 # 5. Representació gràfica dels resultats
 
