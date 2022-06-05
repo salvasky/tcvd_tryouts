@@ -848,6 +848,14 @@ Al llarg d'aquest document s'han anat presentant les gràfiques necessàries per
 
 # 6. Conclusions
 
+El nostre estudi s'ha centrat en diverses de les variables contingudes en el dataset Titanic. Hem plantejat un estudi que deixa de banda el naufragi del Titanic, i hem aprofitat les diferents dades de caire demogràfic, social i econòmic per tal d'inverstigar la relació entre factors com l'edat dels passatgers, els preu del bitllet, la classe en què viatjaven i el port on van embarcar. D'alguna manera, podem considerar el grup de passatgers del Titanic com una mostra representativa de la població que migrava d'Europa a Estats Units a principis del segle XX. Les nostres conclusions en aquest sentit han de ser necessàriament provisionals i temptatives, tenint en compte que el Titanic no era un vaixell qualsevol, sinó precisament el més gran i modern que havia existit mai fins aquell moment. Tanmateix, si imaginem un estudi més ampli, on poguéssim accedir al mateix tipus de dades per altres vaixells de l'època, podem plantejar que el mateix tipus de relacions entre variables que hem presentat en aquest estudi ens podrien ajudar a fer comparacions i construir una imatge històrica, basada en l'anàlisi de dades, dels factors demogràfics i econòmics representatius d'aquest tipus concret de fenomen migratori de principis del segle XX.
+
+Hem proposat una estratègia pròpia per imputar el gran nombre de valors buits que ens hem trobat a la variable 'edat', que era precisament una de les nostres principals variables d'interès.
+
+Un cop netejades les dades, en la nostra investigació hem pogut constatar relacions estadísticament significatives entre el sexe i el preu del bitllet, entre la classe i el port d'embarcament, i entre l'edat i la classe. Respectivament, les proves estadístiques que hem realitzat ens permeten afirmar que les dones van pagar de mitjana un preu més alt per viatjar que els homes, que cadascun dels ports d'embarcament aglutinava viatgers de diferents classe en diferents proporcions, i que l'edat mitjana dels passatgers era diferent per cadascuna de les classes del viatgers.
+
+<br>
+
 # 7. Codi font per a la resolució de la pràctica
 
 El present document HTML ha estat generat amb RStudio a partir d'un fitxer Rmd (R-markdown) que conté el codi necessari per al desenvolupament de la pràctica plantejada. Podeu consultar el fitxer Rmd amb el codi font en aquest mateix repositori.
